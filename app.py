@@ -10,7 +10,7 @@ app.tile = "Thesis Presentation"
 
 # Sample slide definitions
 slides = [
-     {
+    {
         'title': html.A("By Sergio A. Gutierrez Maury", href="https://github.com/Sergi095", style={'textDecoration': 'none', 'color': 'inherit'}),
         'content': [
             html.Div([
@@ -35,13 +35,15 @@ slides = [
                 dcc.Markdown(r'''
                 ### Project Code
                 ''', mathjax=True, style={'fontSize': '1.2vw', 'alignItems':'center'}),
-                html.A([
-                    html.Img(src="assets/GitHub_logo.png", style={'maxWidth': '20px', 'maxHeight': '20px', 'marginRight': '5px'}),
-                    "Github Repository"
-                ], href="https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'}),
-                html.A([
-                    html.Button('Download as PDF', id='download-pdf', n_clicks=0, style={'padding': '1vh', 'fontSize': '1.2vw', 'marginLeft': '10px', "pointer": "cursor"})
-                ], href="/assets/presentation.pdf", download="presentation.pdf", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'})
+                html.Div([
+                    html.A([
+                        html.Img(src="assets/GitHub_logo.png", style={'maxWidth': '20px', 'maxHeight': '20px', 'marginRight': '5px'}),
+                        "Github Repository"
+                    ], href="https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'}),
+                    html.A([
+                        html.Button('Download as PDF', id='download-pdf', n_clicks=0, style={'padding': '1vh', 'fontSize': '1.2vw', 'marginLeft': 'auto', "pointer": "cursor"})
+                    ], href="/assets/presentation.pdf", download="presentation.pdf", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center', 'marginLeft': 'auto'})
+                ], style={'display': 'flex', 'flexDirection': 'row', 'alignItems': 'center', 'justifyContent': 'space-between'})
             ], style={'flex': '1', 'padding': '10px', 'alignItems': 'center'}),
         ]
     },
