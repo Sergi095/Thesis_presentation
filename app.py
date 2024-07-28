@@ -83,17 +83,17 @@ slides = [
 
                 - The dynamics between prey and predators have been extensively studied across fields like mathematics, robotics, and biology.
                   These studies help us understand population dynamics, migrations, and species adaptation.
-                  In multi-agent environments, both predators and prey may evolve swarming behaviors for escape or chase strategies.
+                  In multi-agent environments, both predators and prey may evolve swarming behaviors for escape or chase strategies. \[[2-5](/14)\]
 
                 - Predators often hunt collectively to capture challenging prey, despite the cost of sharing.
                   Examples include lions, hyenas, wolves, and killer whales.
-                  Their hunting strategies vary significantly, utilizing senses like sight, smell, and echolocation.
+                  Their hunting strategies vary significantly, utilizing senses like sight, smell, and echolocation. \[[6-9](/14)\]
 
                 - Prey develop swarming behaviors to increase survival chances, such as confusing predators.
-                 Examples include pigeons and fish, which exhibit complex escape patterns through self-organization and group behaviors.
+                 Examples include pigeons and fish, which exhibit complex escape patterns through self-organization and group behaviors. \[[10-13](/14)\]
 
                 - Inspired by these natural behaviors, researchers have developed swarm robotic systems to mimic these interactions for complex tasks.
-                  This study explores mechanisms like Distance Modulation (DM) and Attractive Distance Modulation (ADM) in a dynamic environment.
+                  This study explores mechanisms like Distance Modulation (DM) and Attractive Distance Modulation (ADM) in a dynamic environment. \[[15](/14)\]
                 ''', mathjax=True, style={'fontSize': '1.5vw'})
             ], style={'flex': '1', 'padding': '10px'})
         ]
@@ -104,13 +104,13 @@ slides = [
             html.Div([
                 dcc.Markdown(r'''
 
-                - Reinforcement Learning Approaches: Studies integrating Reinforcement Learning (RL) with flocking control to model predator-prey interactions, showing improved learning efficiency and coordination.
+                - Reinforcement Learning Approaches: Studies integrating Reinforcement Learning (RL) with flocking control to model predator-prey interactions, showing improved learning efficiency and coordination. \[[16-18](/14)\]
 
-                - Mathematical Models and Theoretical Analysis: Development of minimal models and particle-based approaches to study predator-swarm dynamics, revealing various interaction patterns like escape, confusion, and capture.
+                - Mathematical Models and Theoretical Analysis: Development of minimal models and particle-based approaches to study predator-swarm dynamics, revealing various interaction patterns like escape, confusion, and capture. \[[19-20](/14)\]
 
-                - Applications and Practical Implementations: Use of prey-predator algorithms in real-world scenarios such as surveillance and herding with autonomous drones, demonstrating the practical utility of swarm robotics.
+                - Applications and Practical Implementations: Use of prey-predator algorithms in real-world scenarios such as surveillance and herding with autonomous drones, demonstrating the practical utility of swarm robotics. \[[21-22](/14)\]
 
-                - Swarm Robotics and Flocking Behavior: Research on RAOI behavior policies and prey-predator tasks to enhance cooperative behavior and efficiency in robotic swarms.
+                - Swarm Robotics and Flocking Behavior: Research on RAOI behavior policies and prey-predator tasks to enhance cooperative behavior and efficiency in robotic swarms. \[[23-25](/14)\]
                 ''', mathjax=True, style={'fontSize': '1.5vw'})
             ], style={'flex': '1', 'padding': '10px'})
         ]
@@ -203,7 +203,7 @@ slides = [
             dcc.Markdown(r'''
             The objective of kappa is to make the prey faster the closer the predator, such that it does not become an easy chase.
 
-            The formula of $\kappa$ is a modified version of the fear function used in _"Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge"_.
+            The formula of $\kappa$ is a modified version of the fear function used in **"Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge"** \[[26](/14)\].
 
             The plot shows the strength of kappa as a function of distance, with the maximum value being 2 and approaching 0 as the distance increases.
             ''', mathjax=True, style={'fontSize': '1.5vw'}),
@@ -225,7 +225,7 @@ slides = [
 
                 - Larger Dp for DM: In Distance Modulation (DM), the attraction force decreases with distance, requiring a higher sensor range (Dp) to maintain effective peer sensing and prevent swarm separation.
 
-                - Methodology Alignment: Other parameters align with the methodologies detailed in the referenced paper.
+                - Methodology Alignment: Other parameters align with the methodologies detailed in the referenced paper \[[15](/14)\].
                 ''', mathjax=True, style={'fontSize': '1.2vw', 'textAlign': 'left'}),
             ], style={'flex': '1', 'padding': '10px', 'width': '30vw'}),  # Adjust width as needed
 
