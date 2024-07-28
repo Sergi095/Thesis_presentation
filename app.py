@@ -10,71 +10,73 @@ app.tile = "Thesis Presentation"
 
 # Sample slide definitions
 slides = [
-    # {
-    #     "title": "By Sergio A. Gutierrez Maury",
-    #     "content": [
-
-    #         html.Div([
-    #             dcc.Markdown(r'''
-    #             ### Outline
-    #             - Introduction
-    #             - Related Work
-    #             - Methods
-    #             - Experimental Setup
-    #             - Results
-    #             - Discussion
-    #             - Conclusions
-    #             ''', mathjax=True, style={'fontSize': '1.2vw'}),
-    #         # html.Div([
-    #             html.Img(src="assets/2Dfast.gif", style={'maxWidth': '20vw', 'maxHeight': '40vh', 'display': 'block','margin': '-0 auto', 'marginBottom': '10px'}),
-    #             html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '20vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginTop': '10px'})
-    #         # ], style={'flex': '1', 'display': 'flex', 'flexDirection': 'column', 'justifyContent': 'right', 'alignItems': 'right'})
-
-    #         ], style={'flex': '1', 'padding': '10px'}),
-    #         html.Div([
-    #             dcc.Markdown(r'''
-    #             ### Project Code
-    #             [Github Code](https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git)
-    #             ''', mathjax=True, style={'fontSize': '1.2vw', 'alignItems':'center'}),
-    #             ], style={'flex': '1', 'padding': '10px', 'alignItems': 'center'}),
-    #         # html.Div([
-    #             # html.Img(src="assets/2Dfast.gif", style={'maxWidth': '30vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginRight': '10px'}),
-    #             # html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '30vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginLeft': '10px'})
-    #         # ], style={'flex': '1', 'padding': '10px', 'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'center', 'alignItems': 'center'})
-    #     ]
-    # },
-{
-    "title": html.A("By Sergio A. Gutierrez Maury", href="https://github.com/Sergi095", style={'textDecoration': 'none', 'color': 'inherit'}),
-    "content": [
-        html.Div([
+     {
+        'title': html.A("By Sergio A. Gutierrez Maury", href="https://github.com/Sergi095", style={'textDecoration': 'none', 'color': 'inherit'}),
+        'content': [
+            html.Div([
+                html.Div([
+                    dcc.Markdown(r'''
+                    ### Outline
+                    - Introduction
+                    - Related Work
+                    - Methods
+                    - Experimental Setup
+                    - Results
+                    - Discussion
+                    - Conclusions
+                    ''', mathjax=True, style={'fontSize': '1.2vw'}),
+                ], style={'flex': '1', 'padding': '10px'}),
+                html.Div([
+                    html.Img(src="assets/2Dfast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginRight': '10px'}),
+                    html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginLeft': '10px'})
+                ], style={'flex': '1', 'padding': '10px', 'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'flex-start', 'alignItems': 'flex-end'})
+            ], style={'display': 'flex', 'flexDirection': 'row'}),
             html.Div([
                 dcc.Markdown(r'''
-                ### Outline
-                - Introduction
-                - Related Work
-                - Methods
-                - Experimental Setup
-                - Results
-                - Discussion
-                - Conclusions
-                ''', mathjax=True, style={'fontSize': '1.2vw'}),
-            ], style={'flex': '1', 'padding': '10px'}),
-            html.Div([
-                html.Img(src="assets/2Dfast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginRight': '10px'}),
-                html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginLeft': '10px'})
-            ], style={'flex': '1', 'padding': '10px', 'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'flex-start', 'alignItems': 'flex-end'})
-        ], style={'display': 'flex', 'flexDirection': 'row'}),
-        html.Div([
-            dcc.Markdown(r'''
-            ### Project Code
-            ''', mathjax=True, style={'fontSize': '1.2vw', 'alignItems':'center'}),
-            html.A([
-                html.Img(src="assets/GitHub_logo.png", style={'maxWidth': '20px', 'maxHeight': '20px', 'marginRight': '5px'}),
-                "Github Repository"
-            ], href="https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'})
-        ], style={'flex': '1', 'padding': '10px', 'alignItems': 'center'}),
-    ]
-},
+                ### Project Code
+                ''', mathjax=True, style={'fontSize': '1.2vw', 'alignItems':'center'}),
+                html.A([
+                    html.Img(src="assets/GitHub_logo.png", style={'maxWidth': '20px', 'maxHeight': '20px', 'marginRight': '5px'}),
+                    "Github Repository"
+                ], href="https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'}),
+                html.A([
+                    html.Button('Download as PDF', id='download-pdf', n_clicks=0, style={'padding': '1vh', 'fontSize': '1.2vw', 'marginLeft': '10px', "pointer": "cursor"})
+                ], href="/assets/presentation.pdf", download="presentation.pdf", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'})
+            ], style={'flex': '1', 'padding': '10px', 'alignItems': 'center'}),
+        ]
+    },
+# {
+#     "title": html.A("By Sergio A. Gutierrez Maury", href="https://github.com/Sergi095", style={'textDecoration': 'none', 'color': 'inherit'}),
+#     "content": [
+#         html.Div([
+#             html.Div([
+#                 dcc.Markdown(r'''
+#                 ### Outline
+#                 - Introduction
+#                 - Related Work
+#                 - Methods
+#                 - Experimental Setup
+#                 - Results
+#                 - Discussion
+#                 - Conclusions
+#                 ''', mathjax=True, style={'fontSize': '1.2vw'}),
+#             ], style={'flex': '1', 'padding': '10px'}),
+#             html.Div([
+#                 html.Img(src="assets/2Dfast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginRight': '10px'}),
+#                 html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginLeft': '10px'})
+#             ], style={'flex': '1', 'padding': '10px', 'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'flex-start', 'alignItems': 'flex-end'})
+#         ], style={'display': 'flex', 'flexDirection': 'row'}),
+#         html.Div([
+#             dcc.Markdown(r'''
+#             ### Project Code
+#             ''', mathjax=True, style={'fontSize': '1.2vw', 'alignItems':'center'}),
+#             html.A([
+#                 html.Img(src="assets/GitHub_logo.png", style={'maxWidth': '20px', 'maxHeight': '20px', 'marginRight': '5px'}),
+#                 "Github Repository"
+#             ], href="https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'})
+#         ], style={'flex': '1', 'padding': '10px', 'alignItems': 'center'}),
+#     ]
+# },
     {
         "title": "Introduction",
         "content": [
