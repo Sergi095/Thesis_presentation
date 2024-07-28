@@ -435,101 +435,59 @@ slides = [
         "title": "References",
         "content": [
             dcc.Markdown(r'''
-            - \[1\] Karaguzel, T.A., Cambier, N., Eiben, A.E., Ferrante, E.: Collective Gradient Following with Sensory Heterogeneous UAV Swarm, pp. 187–201 (2024). https://doi.org/10.1007/978-3-031-51497-5_14
 
-            - \[2\] Wen, T., Gao, Q., Kalm ́ar-Nagy, T., Deng, Y., Cheong, K.H.: A review of predator–prey systems
-            with dormancy of predators. Nonlinear dynamics 107(4), 3271–3289 (2022) https://doi.org/10.1007/
-            s11071-021-07083-x
-
-            - \[3\] Batabyal, A.: Predator–prey systems as models for integrative research in biology: the value of a non-
-            consumptive effects framework. Journal of experimental biology 226(19) (2023) https://doi.org/10.1242/jeb.
-            245851
-
-            - \[4\] Diz-Pita, , Otero-Espinar, M.V.: Predator–Prey Models: A Review of Some Recent Advances. Mathematics
-            9(15), 1783 (2021) https://doi.org/10.3390/math9151783
-
-            - \[5\] Witkowski, O., Ikegami, T.: Emergence of Swarming Behavior: Foraging Agents Evolve Collective Motion
-            Based on Signaling. PloS one 11(4), 0152756 (2016) https://doi.org/10.1371/journal.pone.0152756
-
-            - \[6\] Escobedo, R., Muro, C., Spector, L., Coppinger, R.P.: Group size, individual role differentiation and effec-
-            tiveness of cooperation in a homogeneous group of hunters. Journal of the Royal Society interface 11(95),
-            20140204 (2014) https://doi.org/10.1098/rsif.2014.0204
-
-            - \[7\] Social Strategies of Carnivorous Mammalian Predators, (2023). https://doi.org/10.1007/978-3-031-29803-5
-            . https://doi.org/10.1007/978-3-031-29803-5
-
-            - \[8\] Manubay, J.A., Powell, S.: Detection of prey odours underpins dietary specialization in a Neotropical top-
-            predator: How army ants find their ant prey. Journal of animal ecology 89(5), 1165–1174 (2020) https:
-            //doi.org/10.1111/1365-2656.13188
-
-            - \[9\] Schnitzler, H.-U., Kalko, E.K.V.: Echolocation by Insect-Eating Bats. BioScience/Bioscience 51(7), 557
-            (2001) https://doi.org/10.1641/0006-3568(2001)051
-
-            - \[10\] Olson, R.S., Hintze, A., Dyer, F.C., Knoester, D.B., Adami, C.: Predator confusion is sufficient to evolve
-            swarming (2012). https://arxiv.org/abs/1209.3330v1
-
-
-            - \[11\] Chakraborty, D., Bhunia, S., De, R.: Survival chances of a prey swarm: how the cooperative interaction
-            range affects the outcome. arXiv (Cornell University) (2019) https://doi.org/10.48550/arxiv.1910.10541
-
-            - \[12\] Papadopoulou, M., Hildenbrandt, H., Sankey, D.W.E., Portugal, S.J., Hemelrijk, C.K.: Self-organization
-            of collective escape in pigeon flocks. PLOS computational biology/PLoS computational biology 18(1),
-            1009772 (2022) https://doi.org/10.1371/journal.pcbi.1009772
-
-            - \[13\] Marras, S., Domenici, P.: Schooling fish under attack are not all equal: some lead, others follow. PloS one
-            8(6), 65784 (2013) https://doi.org/10.1371/journal.pone.0065784
-
-            - \[14\] Duan, H., Huo, M., Fan, Y.: From animal collective behaviors to swarm robotic cooperation. National
-            Science Review/National science review 10(5) (2023) https://doi.org/10.1093/nsr/nwad040
-
-            - \[15\] Karag ̈uzel, T.A., Turgut, A.E., Eiben, A.E., Ferrante, E.: Collective gradient perception with a flying robot
-            swarm. Swarm intelligence 17(1-2), 117–146 (2022) https://doi.org/10.1007/s11721-022-00220-1
-
-            - \[16\] Wang, G., Xiao, J., Xue, R., Yuan, Y.: A Multi-group Multi-agent System Based on Reinforcement Learning
-            and Flocking. International Journal of Control, Automation, and Systems/International journal of control,
-            automation, and systems 20(7), 2364–2378 (2022) https://doi.org/10.1007/s12555-021-0170-5
-
-            - \[17\] Lee, K., Ahn, K., Park, J.: End-to-End control of USV swarm using graph centric Multi-Agent Reinforce-
-            ment Learning. 2021 21st International Conference on Control, Automation and Systems (ICCAS) (2021)
-            https://doi.org/10.23919/iccas52745.2021.9649839
-
-            - \[18\] Hamed, O., Hamlich, M., Ennaji, M.: Hunting strategy for multi-robot based on wolf swarm algorithm and
-            artificial potential field. Indonesian journal of electrical engineering and computer science 25(1), 159 (2022)
-            https://doi.org/10.11591/ijeecs.v25.i1.pp159-171
-
-            - \[19\] Chen, Y., Kolokolnikov, T.: A minimal model of predator–swarm interactions. Journal of the Royal Society
-            interface 11(94), 20131208 (2014) https://doi.org/10.1098/rsif.2013.1208
-
-            - \[20\] Zhdankin, V., Sprott, J.C.: Simple predator-prey swarming model. Physical review. E, Statistical, nonlinear
-            and soft matter physics 82(5) (2010) https://doi.org/10.1103/physreve.82.056209
-
-            - \[21\] Li, X., Huang, H., Savkin, A., Zhang, J.: Robotic Herding of Farm Animals Using a Network of Barking
-            Aerial Drones. Drones 6(2), 29 (2022) https://doi.org/10.3390/drones6020029
-
-            - \[22\] Xiang, Y., Lei, X., Duan, Z., Dong, F., Gao, Y.: Self-Organized Patchy Target Searching and Collecting
-            with Heterogeneous Swarm Robots Based on Density Interactions. Electronics 12(12), 2588 (2023) https:
-            //doi.org/10.3390/electronics12122588
-
-            - \[23\] Ordaz-Rivas, E., Torres-Trevi ̃no, L.: Modeling and Simulation of Swarm of Foraging Robots for
-            Collecting Resources Using RAOI Behavior Policies, pp. 266–278 (2022). https://doi.org/10.1007/
-            978-3-031-19496-2\{ . https://doi.org/10.1007/978-3-031-19496-220
-
-            - \[24\] Ordaz-Rivas, E., Rodriguez-Li ̃nan, A., Torres-Trevi ̃no, L.: Flock of Robots with Self-Cooperation
-            for Prey-Predator Task. Journal of intelligent robotic systems 101(2) (2021) https://doi.org/10.1007/
-            s10846-020-01283-0
-
-            - \[25\] Sun, X., Hu, C., Liu, T., Yue, S., Peng, J., Fu, Q.: Translating Virtual Prey-Predator Interaction to Real-World
-            Robotic Environments: Enabling Multimodal Sensing and Evolutionary Dynamics. Biomimetics 8(8), 580
-            (2023) https://doi.org/10.3390/biomimetics8080580
-
-            - \[26\] Balcı, E.: Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge.
-            Chaos, solitons fractals/Chaos, solitons and fractals 175, 114016 (2023) https://doi.org/10.1016/j.chaos.
-            2023.114016
-
-            - \[27\] Karag ̈uzel, T.A., Retamal, V., Cambier, N., Ferrante, E.: From Shadows to Light: A Swarm Robotics
-            Approach With Onboard Control for Seeking Dynamic Sources in Constrained Environments. IEEE robotics
-            automation letters 9(1), 127–134 (2024) https://doi.org/10.1109/lra.2023.3331897
-
+            - \[1\] T. A. Karagüzel, N. Cambier, A. E. Eiben, and E. Ferrante, “Collective Gradient Following with Sensory Heterogeneous UAV Swarm,” in Springer proceedings in advanced robotics, 2024, pp. 187–201. doi: 10.1007/978-3-031-51497-5_14.
+                         
+            - \[2\] T. Wen, Q. Gao, T. Kalmár-Nagy, Y. Deng, and K. H. Cheong, “A review of predator–prey systems with dormancy of predators,” Nonlinear Dynamics, vol. 107, no. 4, pp. 3271–3289, Jan. 2022, doi: 10.1007/s11071-021-07083-x.
+                         
+            - \[[3\] A. Batabyal, “Predator–prey systems as models for integrative research in biology: the value of a non-consumptive effects framework,” Journal of Experimental Biology, vol. 226, no. 19, Sep. 2023, doi: 10.1242/jeb.245851.
+                         
+            - \[[4\] É. Diz-Pita and M. V. Otero-Espinar, “Predator–Prey Models: A review of some recent advances,” Mathematics, vol. 9, no. 15, p. 1783, Jul. 2021, doi: 10.3390/math9151783.
+                         
+            - \[[5\] O. Witkowski and T. Ikegami, “Emergence of swarming behavior: Foraging agents evolve collective motion based on signaling,” PLoS ONE, vol. 11, no. 4, p. e0152756, Apr. 2016, doi: 10.1371/journal.pone.0152756.
+                         
+            - \[[6\] R. Escobedo, C. Muro, L. Spector, and R. P. Coppinger, “Group size, individual role differentiation and effectiveness of cooperation in a homogeneous group of hunters,” Journal of the Royal Society Interface, vol. 11, no. 95, p. 20140204, Jun. 2014, doi: 10.1098/rsif.2014.0204.
+                         
+            - \[[7\] M. Srinivasan and B. Würsig, Social strategies of carnivorous mammalian predators. 2023. doi: 10.1007/978-3-031-29803-5.
+                         
+            - \[[8\] J. A. Manubay and S. Powell, “Detection of prey odours underpins dietary specialization in a Neotropical top‐predator: How army ants find their ant prey,” Journal of Animal Ecology, vol. 89, no. 5, pp. 1165–1174, Mar. 2020, doi: 10.1111/1365-2656.13188.
+                         
+            - \[[9\] H.-U. Schnitzler and E. K. V. Kalko, “Echolocation by Insect-Eating bats,” BioScience, vol. 51, no. 7, p. 557, Jan. 2001, doi: 10.1641/0006-3568(2001)051.
+                         
+            - \[[10\] R. S. Olson, A. Hintze, F. C. Dyer, D. B. Knoester, and C. Adami, “Predator confusion is sufficient to evolve swarming,” arXiv.org, Sep. 14, 2012. https://arxiv.org/abs/1209.3330v1
+                         
+            - \[[11\] D. Chakraborty, S. Bhunia, and R. De, “Survival chances of a prey swarm: how the cooperative interaction range affects the outcome,” arXiv.org, Oct. 23, 2019. https://arxiv.org/abs/1910.10541
+                         
+            - \[[12\] M. Papadopoulou, H. Hildenbrandt, D. W. E. Sankey, S. J. Portugal, and C. K. Hemelrijk, “Self-organization of collective escape in pigeon flocks,” PLOS Computational Biology/PLoS Computational Biology, vol. 18, no. 1, p. e1009772, Jan. 2022, doi: 10.1371/journal.pcbi.1009772.
+                         
+            - \[[13\] S. Marras and P. Domenici, “Schooling fish under attack are not all equal: some lead, others follow,” PloS One, vol. 8, no. 6, p. e65784, Jun. 2013, doi: 10.1371/journal.pone.0065784.
+                         
+            - \[[14\] H. Duan, M. Huo, and Y. Fan, “From animal collective behaviors to swarm robotic cooperation,” National Science Review/National Science Review, vol. 10, no. 5, Feb. 2023, doi: 10.1093/nsr/nwad040.
+                         
+            - \[[15\] T. A. Karagüzel, A. E. Turgut, A. E. Eiben, and E. Ferrante, “Collective gradient perception with a flying robot swarm,” Swarm Intelligence, vol. 17, no. 1–2, pp. 117–146, Oct. 2022, doi: 10.1007/s11721-022-00220-1.
+                         
+            - \[[16\] G. Wang, J. Xiao, R. Xue, and Y. Yuan, “A multi-group multi-agent system based on reinforcement learning and flocking,” International Journal of Control, Automation, and Systems/International Journal of Control, Automation, and Systems, vol. 20, no. 7, pp. 2364–2378, Jun. 2022, doi: 10.1007/s12555-021-0170-5.
+                         
+            - \[[17\] “End-to-End control of USV swarm using graph centric Multi-Agent Reinforcement Learning,” IEEE Conference Publication | IEEE Xplore, Oct. 12, 2021. https://ieeexplore.ieee.org/document/9649839/
+                         
+            - \[[18\] O. Hamed, M. Hamlich, and M. Ennaji, “Hunting strategy for multi-robot based on wolf swarm algorithm and artificial potential field,” Indonesian Journal of Electrical Engineering and Computer Science, vol. 25, no. 1, p. 159, Jan. 2022, doi: 10.11591/ijeecs.v25.i1.pp159-171.
+                         
+            - \[[19\] Y. Chen and T. Kolokolnikov, “A minimal model of predator–swarm interactions,” Journal of the Royal Society Interface, vol. 11, no. 94, p. 20131208, May 2014, doi: 10.1098/rsif.2013.1208.
+                         
+            - \[[20\] V. Zhdankin and J. C. Sprott, “Simple predator-prey swarming model,” Physical Review E, vol. 82, no. 5, Nov. 2010, doi: 10.1103/physreve.82.056209.
+                         
+            - \[[21\] X. Li, H. Huang, A. Savkin, and J. Zhang, “Robotic herding of farm animals using a network of barking aerial drones,” Drones, vol. 6, no. 2, p. 29, Jan. 2022, doi: 10.3390/drones6020029.
+                         
+            - \[[22\] Y. Xiang, X. Lei, Z. Duan, F. Dong, and Y. Gao, “Self-Organized Patchy Target Searching and Collecting with Heterogeneous Swarm Robots Based on Density Interactions,” Electronics, vol. 12, no. 12, p. 2588, Jun. 2023, doi: 10.3390/electronics12122588.
+                         
+            - \[[23\] E. Ordaz-Rivas and L. Torres-Treviño, “Modeling and simulation of swarm of foraging robots for collecting resources using RAOI behavior Policies,” in Lecture notes in computer science, 2022, pp. 266–278. doi: 10.1007/978-3-031-19496-2_20.
+                         
+            - \[[24\] E. Ordaz-Rivas, A. Rodriguez-Liñan, and L. Torres-Treviño, “Flock of Robots with Self-Cooperation for Prey-Predator Task,” Journal of Intelligent & Robotic Systems, vol. 101, no. 2, Feb. 2021, doi: 10.1007/s10846-020-01283-0.
+                         
+            - \[[25\] X. Sun, C. Hu, T. Liu, S. Yue, J. Peng, and Q. Fu, “Translating virtual Prey-Predator interaction to Real-World robotic environments: enabling multimodal sensing and evolutionary dynamics,” Biomimetics, vol. 8, no. 8, p. 580, Dec. 2023, doi: 10.3390/biomimetics8080580.
+                         
+            - \[[26\] E. Balcı, “Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge,” Chaos, Solitons & Fractals/Chaos, Solitons and Fractals, vol. 175, p. 114016, Oct. 2023, doi: 10.1016/j.chaos.2023.114016.
+                         
             ''', mathjax=True, style={'fontSize': '1.2vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbar-width': 'none', '-ms-overflow-style': 'none'}),
 
         ]
