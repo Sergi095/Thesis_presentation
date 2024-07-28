@@ -440,53 +440,53 @@ slides = [
                          
             - \[2\] T. Wen, Q. Gao, T. Kalmár-Nagy, Y. Deng, and K. H. Cheong, “A review of predator–prey systems with dormancy of predators,” Nonlinear Dynamics, vol. 107, no. 4, pp. 3271–3289, Jan. 2022, doi: 10.1007/s11071-021-07083-x.
                          
-            - \[[3\] A. Batabyal, “Predator–prey systems as models for integrative research in biology: the value of a non-consumptive effects framework,” Journal of Experimental Biology, vol. 226, no. 19, Sep. 2023, doi: 10.1242/jeb.245851.
+            - \[3\] A. Batabyal, “Predator–prey systems as models for integrative research in biology: the value of a non-consumptive effects framework,” Journal of Experimental Biology, vol. 226, no. 19, Sep. 2023, doi: 10.1242/jeb.245851.
                          
-            - \[[4\] É. Diz-Pita and M. V. Otero-Espinar, “Predator–Prey Models: A review of some recent advances,” Mathematics, vol. 9, no. 15, p. 1783, Jul. 2021, doi: 10.3390/math9151783.
+            - \[4\] É. Diz-Pita and M. V. Otero-Espinar, “Predator–Prey Models: A review of some recent advances,” Mathematics, vol. 9, no. 15, p. 1783, Jul. 2021, doi: 10.3390/math9151783.
                          
-            - \[[5\] O. Witkowski and T. Ikegami, “Emergence of swarming behavior: Foraging agents evolve collective motion based on signaling,” PLoS ONE, vol. 11, no. 4, p. e0152756, Apr. 2016, doi: 10.1371/journal.pone.0152756.
+            - \[5\] O. Witkowski and T. Ikegami, “Emergence of swarming behavior: Foraging agents evolve collective motion based on signaling,” PLoS ONE, vol. 11, no. 4, p. e0152756, Apr. 2016, doi: 10.1371/journal.pone.0152756.
                          
-            - \[[6\] R. Escobedo, C. Muro, L. Spector, and R. P. Coppinger, “Group size, individual role differentiation and effectiveness of cooperation in a homogeneous group of hunters,” Journal of the Royal Society Interface, vol. 11, no. 95, p. 20140204, Jun. 2014, doi: 10.1098/rsif.2014.0204.
+            - \[6\] R. Escobedo, C. Muro, L. Spector, and R. P. Coppinger, “Group size, individual role differentiation and effectiveness of cooperation in a homogeneous group of hunters,” Journal of the Royal Society Interface, vol. 11, no. 95, p. 20140204, Jun. 2014, doi: 10.1098/rsif.2014.0204.
                          
-            - \[[7\] M. Srinivasan and B. Würsig, Social strategies of carnivorous mammalian predators. 2023. doi: 10.1007/978-3-031-29803-5.
+            - \[7\] M. Srinivasan and B. Würsig, Social strategies of carnivorous mammalian predators. 2023. doi: 10.1007/978-3-031-29803-5.
                          
-            - \[[8\] J. A. Manubay and S. Powell, “Detection of prey odours underpins dietary specialization in a Neotropical top‐predator: How army ants find their ant prey,” Journal of Animal Ecology, vol. 89, no. 5, pp. 1165–1174, Mar. 2020, doi: 10.1111/1365-2656.13188.
+            - \[8\] J. A. Manubay and S. Powell, “Detection of prey odours underpins dietary specialization in a Neotropical top‐predator: How army ants find their ant prey,” Journal of Animal Ecology, vol. 89, no. 5, pp. 1165–1174, Mar. 2020, doi: 10.1111/1365-2656.13188.
                          
-            - \[[9\] H.-U. Schnitzler and E. K. V. Kalko, “Echolocation by Insect-Eating bats,” BioScience, vol. 51, no. 7, p. 557, Jan. 2001, doi: 10.1641/0006-3568(2001)051.
+            - \[9\] H.-U. Schnitzler and E. K. V. Kalko, “Echolocation by Insect-Eating bats,” BioScience, vol. 51, no. 7, p. 557, Jan. 2001, doi: 10.1641/0006-3568(2001)051.
                          
-            - \[[10\] R. S. Olson, A. Hintze, F. C. Dyer, D. B. Knoester, and C. Adami, “Predator confusion is sufficient to evolve swarming,” arXiv.org, Sep. 14, 2012. https://arxiv.org/abs/1209.3330v1
+            - \[10\] R. S. Olson, A. Hintze, F. C. Dyer, D. B. Knoester, and C. Adami, “Predator confusion is sufficient to evolve swarming,” arXiv.org, Sep. 14, 2012. https://arxiv.org/abs/1209.3330v1
                          
-            - \[[11\] D. Chakraborty, S. Bhunia, and R. De, “Survival chances of a prey swarm: how the cooperative interaction range affects the outcome,” arXiv.org, Oct. 23, 2019. https://arxiv.org/abs/1910.10541
+            - \[11\] D. Chakraborty, S. Bhunia, and R. De, “Survival chances of a prey swarm: how the cooperative interaction range affects the outcome,” arXiv.org, Oct. 23, 2019. https://arxiv.org/abs/1910.10541
                          
-            - \[[12\] M. Papadopoulou, H. Hildenbrandt, D. W. E. Sankey, S. J. Portugal, and C. K. Hemelrijk, “Self-organization of collective escape in pigeon flocks,” PLOS Computational Biology/PLoS Computational Biology, vol. 18, no. 1, p. e1009772, Jan. 2022, doi: 10.1371/journal.pcbi.1009772.
+            - \[12\] M. Papadopoulou, H. Hildenbrandt, D. W. E. Sankey, S. J. Portugal, and C. K. Hemelrijk, “Self-organization of collective escape in pigeon flocks,” PLOS Computational Biology/PLoS Computational Biology, vol. 18, no. 1, p. e1009772, Jan. 2022, doi: 10.1371/journal.pcbi.1009772.
                          
-            - \[[13\] S. Marras and P. Domenici, “Schooling fish under attack are not all equal: some lead, others follow,” PloS One, vol. 8, no. 6, p. e65784, Jun. 2013, doi: 10.1371/journal.pone.0065784.
+            - \[13\] S. Marras and P. Domenici, “Schooling fish under attack are not all equal: some lead, others follow,” PloS One, vol. 8, no. 6, p. e65784, Jun. 2013, doi: 10.1371/journal.pone.0065784.
                          
-            - \[[14\] H. Duan, M. Huo, and Y. Fan, “From animal collective behaviors to swarm robotic cooperation,” National Science Review/National Science Review, vol. 10, no. 5, Feb. 2023, doi: 10.1093/nsr/nwad040.
+            - \[14\] H. Duan, M. Huo, and Y. Fan, “From animal collective behaviors to swarm robotic cooperation,” National Science Review/National Science Review, vol. 10, no. 5, Feb. 2023, doi: 10.1093/nsr/nwad040.
                          
-            - \[[15\] T. A. Karagüzel, A. E. Turgut, A. E. Eiben, and E. Ferrante, “Collective gradient perception with a flying robot swarm,” Swarm Intelligence, vol. 17, no. 1–2, pp. 117–146, Oct. 2022, doi: 10.1007/s11721-022-00220-1.
+            - \[15\] T. A. Karagüzel, A. E. Turgut, A. E. Eiben, and E. Ferrante, “Collective gradient perception with a flying robot swarm,” Swarm Intelligence, vol. 17, no. 1–2, pp. 117–146, Oct. 2022, doi: 10.1007/s11721-022-00220-1.
                          
-            - \[[16\] G. Wang, J. Xiao, R. Xue, and Y. Yuan, “A multi-group multi-agent system based on reinforcement learning and flocking,” International Journal of Control, Automation, and Systems/International Journal of Control, Automation, and Systems, vol. 20, no. 7, pp. 2364–2378, Jun. 2022, doi: 10.1007/s12555-021-0170-5.
+            - \[16\] G. Wang, J. Xiao, R. Xue, and Y. Yuan, “A multi-group multi-agent system based on reinforcement learning and flocking,” International Journal of Control, Automation, and Systems/International Journal of Control, Automation, and Systems, vol. 20, no. 7, pp. 2364–2378, Jun. 2022, doi: 10.1007/s12555-021-0170-5.
                          
-            - \[[17\] “End-to-End control of USV swarm using graph centric Multi-Agent Reinforcement Learning,” IEEE Conference Publication | IEEE Xplore, Oct. 12, 2021. https://ieeexplore.ieee.org/document/9649839/
+            - \[17\] “End-to-End control of USV swarm using graph centric Multi-Agent Reinforcement Learning,” IEEE Conference Publication | IEEE Xplore, Oct. 12, 2021. https://ieeexplore.ieee.org/document/9649839/
                          
-            - \[[18\] O. Hamed, M. Hamlich, and M. Ennaji, “Hunting strategy for multi-robot based on wolf swarm algorithm and artificial potential field,” Indonesian Journal of Electrical Engineering and Computer Science, vol. 25, no. 1, p. 159, Jan. 2022, doi: 10.11591/ijeecs.v25.i1.pp159-171.
+            - \[18\] O. Hamed, M. Hamlich, and M. Ennaji, “Hunting strategy for multi-robot based on wolf swarm algorithm and artificial potential field,” Indonesian Journal of Electrical Engineering and Computer Science, vol. 25, no. 1, p. 159, Jan. 2022, doi: 10.11591/ijeecs.v25.i1.pp159-171.
                          
-            - \[[19\] Y. Chen and T. Kolokolnikov, “A minimal model of predator–swarm interactions,” Journal of the Royal Society Interface, vol. 11, no. 94, p. 20131208, May 2014, doi: 10.1098/rsif.2013.1208.
+            - \[19\] Y. Chen and T. Kolokolnikov, “A minimal model of predator–swarm interactions,” Journal of the Royal Society Interface, vol. 11, no. 94, p. 20131208, May 2014, doi: 10.1098/rsif.2013.1208.
                          
-            - \[[20\] V. Zhdankin and J. C. Sprott, “Simple predator-prey swarming model,” Physical Review E, vol. 82, no. 5, Nov. 2010, doi: 10.1103/physreve.82.056209.
+            - \[20\] V. Zhdankin and J. C. Sprott, “Simple predator-prey swarming model,” Physical Review E, vol. 82, no. 5, Nov. 2010, doi: 10.1103/physreve.82.056209.
                          
-            - \[[21\] X. Li, H. Huang, A. Savkin, and J. Zhang, “Robotic herding of farm animals using a network of barking aerial drones,” Drones, vol. 6, no. 2, p. 29, Jan. 2022, doi: 10.3390/drones6020029.
+            - \[21\] X. Li, H. Huang, A. Savkin, and J. Zhang, “Robotic herding of farm animals using a network of barking aerial drones,” Drones, vol. 6, no. 2, p. 29, Jan. 2022, doi: 10.3390/drones6020029.
                          
-            - \[[22\] Y. Xiang, X. Lei, Z. Duan, F. Dong, and Y. Gao, “Self-Organized Patchy Target Searching and Collecting with Heterogeneous Swarm Robots Based on Density Interactions,” Electronics, vol. 12, no. 12, p. 2588, Jun. 2023, doi: 10.3390/electronics12122588.
+            - \[22\] Y. Xiang, X. Lei, Z. Duan, F. Dong, and Y. Gao, “Self-Organized Patchy Target Searching and Collecting with Heterogeneous Swarm Robots Based on Density Interactions,” Electronics, vol. 12, no. 12, p. 2588, Jun. 2023, doi: 10.3390/electronics12122588.
                          
-            - \[[23\] E. Ordaz-Rivas and L. Torres-Treviño, “Modeling and simulation of swarm of foraging robots for collecting resources using RAOI behavior Policies,” in Lecture notes in computer science, 2022, pp. 266–278. doi: 10.1007/978-3-031-19496-2_20.
+            - \[23\] E. Ordaz-Rivas and L. Torres-Treviño, “Modeling and simulation of swarm of foraging robots for collecting resources using RAOI behavior Policies,” in Lecture notes in computer science, 2022, pp. 266–278. doi: 10.1007/978-3-031-19496-2_20.
                          
-            - \[[24\] E. Ordaz-Rivas, A. Rodriguez-Liñan, and L. Torres-Treviño, “Flock of Robots with Self-Cooperation for Prey-Predator Task,” Journal of Intelligent & Robotic Systems, vol. 101, no. 2, Feb. 2021, doi: 10.1007/s10846-020-01283-0.
+            - \[24\] E. Ordaz-Rivas, A. Rodriguez-Liñan, and L. Torres-Treviño, “Flock of Robots with Self-Cooperation for Prey-Predator Task,” Journal of Intelligent & Robotic Systems, vol. 101, no. 2, Feb. 2021, doi: 10.1007/s10846-020-01283-0.
+                        
+            - \[25\] X. Sun, C. Hu, T. Liu, S. Yue, J. Peng, and Q. Fu, “Translating virtual Prey-Predator interaction to Real-World robotic environments: enabling multimodal sensing and evolutionary dynamics,” Biomimetics, vol. 8, no. 8, p. 580, Dec. 2023, doi: 10.3390/biomimetics8080580.
                          
-            - \[[25\] X. Sun, C. Hu, T. Liu, S. Yue, J. Peng, and Q. Fu, “Translating virtual Prey-Predator interaction to Real-World robotic environments: enabling multimodal sensing and evolutionary dynamics,” Biomimetics, vol. 8, no. 8, p. 580, Dec. 2023, doi: 10.3390/biomimetics8080580.
-                         
-            - \[[26\] E. Balcı, “Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge,” Chaos, Solitons & Fractals/Chaos, Solitons and Fractals, vol. 175, p. 114016, Oct. 2023, doi: 10.1016/j.chaos.2023.114016.
+            - \[26\] E. Balcı, “Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge,” Chaos, Solitons & Fractals/Chaos, Solitons and Fractals, vol. 175, p. 114016, Oct. 2023, doi: 10.1016/j.chaos.2023.114016.
                          
             ''', mathjax=True, style={'fontSize': '1.2vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbar-width': 'none', '-ms-overflow-style': 'none'}),
 
