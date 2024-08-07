@@ -7,7 +7,7 @@ import plotly.graph_objs as go
 import numpy as np
 # Initialize the Dash app
 app = dash.Dash(__name__, title='Thesis Presentation', suppress_callback_exceptions=True)
-
+server = app.server
 app.tile = "Thesis Presentation"
 # app.favicon = "assets/icon.ico"
 # VU_logo_RGB-01.jpg
@@ -899,5 +899,5 @@ def create_figure(preys, predators, current_step=0):
 
 
 if __name__ == '__main__':
-    #app.run_server(debug=True)
-    app.run_server(host='0.0.0.0', port=10000)
+    app.run_server(debug=True)
+    #app.run_server(host='0.0.0.0', port=10000)
