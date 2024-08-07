@@ -1,8 +1,12 @@
 import dash
 from dash import dcc, html, Input, Output, State
 import dash_katex
+from typing import Tuple, List
+from sim import PredatorPreySimulation
+import plotly.graph_objs as go
+import numpy as np
 # Initialize the Dash app
-app = dash.Dash(__name__, title='Thesis Presentation')
+app = dash.Dash(__name__, title='Thesis Presentation', suppress_callback_exceptions=True)
 
 app.tile = "Thesis Presentation"
 # app.favicon = "assets/icon.ico"
@@ -10,75 +14,83 @@ app.tile = "Thesis Presentation"
 
 # Sample slide definitions
 slides = [
-    {
-        'title': html.A("By Sergio A. Gutierrez Maury", href="https://github.com/Sergi095", style={'textDecoration': 'none', 'color': 'inherit'}),
-        'content': [
-            html.Div([
-                html.Div([
-                    dcc.Markdown(r'''
-                    ### Outline
-                    - Introduction
-                    - Related Work
-                    - Methods
-                    - Experimental Setup
-                    - Results
-                    - Discussion
-                    - Conclusions
-                    ''', mathjax=True, style={'fontSize': '1.2vw'}),
-                ], style={'flex': '1', 'padding': '10px'}),
-                html.Div([
-                    html.Img(src="assets/2Dfast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginRight': '10px'}),
-                    html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginLeft': '10px'})
-                ], style={'flex': '1', 'padding': '10px', 'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'flex-start', 'alignItems': 'flex-end'})
-            ], style={'display': 'flex', 'flexDirection': 'row'}),
+    # {
+    #     "title": "By Sergio A. Gutierrez Maury",
+    #     "content": [
+
+    #         html.Div([
+    #             dcc.Markdown(r'''
+    #             ### Outline
+    #             - Introduction
+    #             - Related Work
+    #             - Methods
+    #             - Experimental Setup
+    #             - Results
+    #             - Discussion
+    #             - Conclusions
+    #             ''', mathjax=True, style={'fontSize': '1.2vw'}),
+    #         # html.Div([
+    #             html.Img(src="assets/2Dfast.gif", style={'maxWidth': '20vw', 'maxHeight': '40vh', 'display': 'block','margin': '-0 auto', 'marginBottom': '10px'}),
+    #             html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '20vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginTop': '10px'})
+    #         # ], style={'flex': '1', 'display': 'flex', 'flexDirection': 'column', 'justifyContent': 'right', 'alignItems': 'right'})
+            
+    #         ], style={'flex': '1', 'padding': '10px'}),
+    #         html.Div([
+    #             dcc.Markdown(r'''
+    #             ### Project Code
+    #             [Github Code](https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git)
+    #             ''', mathjax=True, style={'fontSize': '1.2vw', 'alignItems':'center'}),
+    #             ], style={'flex': '1', 'padding': '10px', 'alignItems': 'center'}),
+    #         # html.Div([
+    #             # html.Img(src="assets/2Dfast.gif", style={'maxWidth': '30vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginRight': '10px'}),
+    #             # html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '30vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginLeft': '10px'})
+    #         # ], style={'flex': '1', 'padding': '10px', 'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'center', 'alignItems': 'center'})
+    #     ]
+    # },
+{
+    "title": html.A("By Sergio A. Gutierrez Maury", href="https://github.com/Sergi095", style={'textDecoration': 'none', 'color': 'inherit'}),
+    "content": [
+        html.Div([
             html.Div([
                 dcc.Markdown(r'''
-                ### Project Code
-                ''', mathjax=True, style={'fontSize': '1.2vw', 'alignItems':'center'}),
-                html.Div([
-                    html.A([
-                        html.Img(src="assets/GitHub_logo.png", style={'maxWidth': '20px', 'maxHeight': '20px', 'marginRight': '5px'}),
-                        "Github Repository"
-                    ], href="https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'}),
-                    html.A([
-                        html.Button('Download as PDF', id='download-pdf', n_clicks=0, style={'padding': '1vh', 'fontSize': '1.2vw', 'marginLeft': 'auto', "pointer": "cursor"})
-                    ], href="/assets/presentation.pdf", download="presentation.pdf", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center', 'marginLeft': 'auto'})
-                ], style={'display': 'flex', 'flexDirection': 'row', 'alignItems': 'center', 'justifyContent': 'space-between'})
-            ], style={'flex': '1', 'padding': '10px', 'alignItems': 'center'}),
-        ]
-    },
-# {
-#     "title": html.A("By Sergio A. Gutierrez Maury", href="https://github.com/Sergi095", style={'textDecoration': 'none', 'color': 'inherit'}),
-#     "content": [
-#         html.Div([
-#             html.Div([
-#                 dcc.Markdown(r'''
-#                 ### Outline
-#                 - Introduction
-#                 - Related Work
-#                 - Methods
-#                 - Experimental Setup
-#                 - Results
-#                 - Discussion
-#                 - Conclusions
-#                 ''', mathjax=True, style={'fontSize': '1.2vw'}),
-#             ], style={'flex': '1', 'padding': '10px'}),
-#             html.Div([
-#                 html.Img(src="assets/2Dfast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginRight': '10px'}),
-#                 html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginLeft': '10px'})
-#             ], style={'flex': '1', 'padding': '10px', 'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'flex-start', 'alignItems': 'flex-end'})
-#         ], style={'display': 'flex', 'flexDirection': 'row'}),
-#         html.Div([
-#             dcc.Markdown(r'''
-#             ### Project Code
-#             ''', mathjax=True, style={'fontSize': '1.2vw', 'alignItems':'center'}),
-#             html.A([
-#                 html.Img(src="assets/GitHub_logo.png", style={'maxWidth': '20px', 'maxHeight': '20px', 'marginRight': '5px'}),
-#                 "Github Repository"
-#             ], href="https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'})
-#         ], style={'flex': '1', 'padding': '10px', 'alignItems': 'center'}),
-#     ]
-# },
+                ### Outline
+                - Introduction
+                - Related Work
+                - Methods
+                - Experimental Setup
+                - Results
+                - Discussion
+                - Conclusions
+                ''', mathjax=True, style={'fontSize': '1.2vw'}),
+            ], style={'flex': '1', 'padding': '10px'}),
+            html.Div([
+                html.Img(src="assets/2Dfast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginRight': '10px'}),
+                html.Img(src="assets/pybulletFast.gif", style={'maxWidth': '25vw', 'maxHeight': '40vh', 'display': 'block', 'margin': '0 auto', 'marginLeft': '10px'})
+            ], style={'flex': '1', 'padding': '10px', 'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'flex-start', 'alignItems': 'flex-end'})
+        ], style={'display': 'flex', 'flexDirection': 'row'}),
+html.Div([
+    html.Div([
+        dcc.Markdown(r'''
+        ### Project Code
+        ''', mathjax=True, style={'fontSize': '1.2vw', 'alignItems':'center'}),
+        html.A([
+            html.Img(src="assets/GitHub_logo.png", style={'maxWidth': '20px', 'maxHeight': '20px', 'marginRight': '5px'}),
+            "Github Repository"
+        ], href="https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git", style={'textDecoration': 'none', 'fontSize': '1.2vw', 'alignItems': 'center'}),
+    ], style={'flex': '1', 'padding': '10px', 'alignItems': 'center'}),
+
+html.Div([
+    html.Div([
+        dcc.Markdown(r'''
+        ### Playground 
+        At slide [13](/13) you can interact with the simulation.
+        ''', mathjax=True, style={'fontSize': '1.2vw', 'textAlign': 'right'}),
+    ], style={'flex': '1', 'padding': '10px', 'display': 'flex', 'justifyContent': 'flex-end'}),
+], style={'display': 'flex', 'alignItems': 'center'}),
+], style={'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'space-between', 'alignItems': 'center'}),
+
+    ]
+},
     {
         "title": "Introduction",
         "content": [
@@ -87,17 +99,17 @@ slides = [
 
                 - The dynamics between prey and predators have been extensively studied across fields like mathematics, robotics, and biology.
                   These studies help us understand population dynamics, migrations, and species adaptation.
-                  In multi-agent environments, both predators and prey may evolve swarming behaviors for escape or chase strategies. \[[2-5](/14)\]
+                  In multi-agent environments, both predators and prey may evolve swarming behaviors for escape or chase strategies. \[[2-5](/15)\]
 
                 - Predators often hunt collectively to capture challenging prey, despite the cost of sharing.
                   Examples include lions, hyenas, wolves, and killer whales.
-                  Their hunting strategies vary significantly, utilizing senses like sight, smell, and echolocation. \[[6-9](/14)\]
+                  Their hunting strategies vary significantly, utilizing senses like sight, smell, and echolocation. \[[6-9](/15)\]
 
                 - Prey develop swarming behaviors to increase survival chances, such as confusing predators.
-                 Examples include pigeons and fish, which exhibit complex escape patterns through self-organization and group behaviors. \[[10-13](/14)\]
+                 Examples include pigeons and fish, which exhibit complex escape patterns through self-organization and group behaviors. \[[10-13](/15)\]
 
                 - Inspired by these natural behaviors, researchers have developed swarm robotic systems to mimic these interactions for complex tasks.
-                  This study explores mechanisms like Distance Modulation (DM) and Attractive Distance Modulation (ADM) in a dynamic environment. \[[15](/14)\]
+                  This study explores mechanisms like Distance Modulation (DM) and Attractive Distance Modulation (ADM) in a dynamic environment. \[[15](/15)\]
                 ''', mathjax=True, style={'fontSize': '1.5vw'})
             ], style={'flex': '1', 'padding': '10px'})
         ]
@@ -108,13 +120,13 @@ slides = [
             html.Div([
                 dcc.Markdown(r'''
 
-                - Reinforcement Learning Approaches: Studies integrating Reinforcement Learning (RL) with flocking control to model predator-prey interactions, showing improved learning efficiency and coordination. \[[16-18](/14)\]
+                - Reinforcement Learning Approaches: Studies integrating Reinforcement Learning (RL) with flocking control to model predator-prey interactions, showing improved learning efficiency and coordination. \[[16-18](/15)\]
 
-                - Mathematical Models and Theoretical Analysis: Development of minimal models and particle-based approaches to study predator-swarm dynamics, revealing various interaction patterns like escape, confusion, and capture. \[[19-20](/14)\]
+                - Mathematical Models and Theoretical Analysis: Development of minimal models and particle-based approaches to study predator-swarm dynamics, revealing various interaction patterns like escape, confusion, and capture. \[[19-20](/15)\]
 
-                - Applications and Practical Implementations: Use of prey-predator algorithms in real-world scenarios such as surveillance and herding with autonomous drones, demonstrating the practical utility of swarm robotics. \[[21-22](/14)\]
+                - Applications and Practical Implementations: Use of prey-predator algorithms in real-world scenarios such as surveillance and herding with autonomous drones, demonstrating the practical utility of swarm robotics. \[[21-22](/15)\]
 
-                - Swarm Robotics and Flocking Behavior: Research on RAOI behavior policies and prey-predator tasks to enhance cooperative behavior and efficiency in robotic swarms. \[[23-25](/14)\]
+                - Swarm Robotics and Flocking Behavior: Research on RAOI behavior policies and prey-predator tasks to enhance cooperative behavior and efficiency in robotic swarms. \[[23-25](/15)\]
                 ''', mathjax=True, style={'fontSize': '1.5vw'})
             ], style={'flex': '1', 'padding': '10px'})
         ]
@@ -124,7 +136,7 @@ slides = [
         "title": "Methods: Proximal Control Vectors",
         "content": [
             dcc.Markdown(r'''
-            Following the methodology of “Collective Gradient Following with Sensory Heterogeneous UAV Swarm” \[[1](/14)\] I implement two different proximal control vectors:
+            Following the methodology of “Collective Gradient Following with Sensory Heterogeneous UAV Swarm” \[[1](/15)\] I implement two different proximal control vectors:
             - Attractive Distance Modulation (ADM)
             - Distance Modulation (DM or Normal P-vector)
 
@@ -207,7 +219,7 @@ slides = [
             dcc.Markdown(r'''
             The objective of kappa is to make the prey faster the closer the predator, such that it does not become an easy chase.
 
-            The formula of $\kappa$ is a modified version of the fear function used in **"Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge"** \[[26](/14)\].
+            The formula of $\kappa$ is a modified version of the fear function used in **"Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge"** \[[26](/15)\].
 
             The plot shows the strength of kappa as a function of distance, with the maximum value being 2 and approaching 0 as the distance increases.
             ''', mathjax=True, style={'fontSize': '1.5vw'}),
@@ -229,7 +241,7 @@ slides = [
 
                 - Larger Dp for DM: In Distance Modulation (DM), the attraction force decreases with distance, requiring a higher sensor range (Dp) to maintain effective peer sensing and prevent swarm separation.
 
-                - Methodology Alignment: Other parameters align with the methodologies detailed in the referenced paper \[[15](/14)\].
+                - Methodology Alignment: Other parameters align with the methodologies detailed in the referenced paper \[[15](/15)\].
                 ''', mathjax=True, style={'fontSize': '1.2vw', 'textAlign': 'left'}),
             ], style={'flex': '1', 'padding': '10px', 'width': '30vw'}),  # Adjust width as needed
 
@@ -422,14 +434,24 @@ slides = [
         ]
     },
 
+{
+    "title": "Simulation Playground",
+    "content": [
+
+
+    ]
+
+}
+,
+
     {
         "title": "Acknowledgements",
         "content": [
             dcc.Markdown(r'''
             I would like to express my gratitude to my supervisors, Dr. Eliseo Ferrante and PhD candidate Tugay Alperen Karagüzel, for their invaluable guidance, patience, and support throughout this research project. Their expertise and mentorship have been instrumental in this journey.
-
+                         
             I am also thankful to my wife and friends for their continuous encouragement, understanding, and help during this challenging period.
-
+                         
             Lastly, I would like to extend my appreciation to Vrije Universiteit Amsterdam for providing the resources and environment essential for the successful completion of this project.
             ''', mathjax=True, style={'fontSize': '1.5vw'})
         ]
@@ -439,87 +461,172 @@ slides = [
         "title": "References",
         "content": [
             dcc.Markdown(r'''
-
-            - \[1\] T. A. Karagüzel, N. Cambier, A. E. Eiben, and E. Ferrante, “Collective Gradient Following with Sensory Heterogeneous UAV Swarm,” in Springer proceedings in advanced robotics, 2024, pp. 187–201. doi: 10.1007/978-3-031-51497-5_14.
+            - \[1\] Karaguzel, T.A., Cambier, N., Eiben, A.E., Ferrante, E.: Collective Gradient Following with Sensory Heterogeneous UAV Swarm, pp. 187–201 (2024). https://doi.org/10.1007/978-3-031-51497-5_14
                          
-            - \[2\] T. Wen, Q. Gao, T. Kalmár-Nagy, Y. Deng, and K. H. Cheong, “A review of predator–prey systems with dormancy of predators,” Nonlinear Dynamics, vol. 107, no. 4, pp. 3271–3289, Jan. 2022, doi: 10.1007/s11071-021-07083-x.
+            - \[2\] Wen, T., Gao, Q., Kalm ́ar-Nagy, T., Deng, Y., Cheong, K.H.: A review of predator–prey systems
+            with dormancy of predators. Nonlinear dynamics 107(4), 3271–3289 (2022) https://doi.org/10.1007/
+            s11071-021-07083-x
                          
-            - \[3\] A. Batabyal, “Predator–prey systems as models for integrative research in biology: the value of a non-consumptive effects framework,” Journal of Experimental Biology, vol. 226, no. 19, Sep. 2023, doi: 10.1242/jeb.245851.
+            - \[3\] Batabyal, A.: Predator–prey systems as models for integrative research in biology: the value of a non-
+            consumptive effects framework. Journal of experimental biology 226(19) (2023) https://doi.org/10.1242/jeb.
+            245851
                          
-            - \[4\] É. Diz-Pita and M. V. Otero-Espinar, “Predator–Prey Models: A review of some recent advances,” Mathematics, vol. 9, no. 15, p. 1783, Jul. 2021, doi: 10.3390/math9151783.
+            - \[4\] Diz-Pita, , Otero-Espinar, M.V.: Predator–Prey Models: A Review of Some Recent Advances. Mathematics
+            9(15), 1783 (2021) https://doi.org/10.3390/math9151783
                          
-            - \[5\] O. Witkowski and T. Ikegami, “Emergence of swarming behavior: Foraging agents evolve collective motion based on signaling,” PLoS ONE, vol. 11, no. 4, p. e0152756, Apr. 2016, doi: 10.1371/journal.pone.0152756.
+            - \[5\] Witkowski, O., Ikegami, T.: Emergence of Swarming Behavior: Foraging Agents Evolve Collective Motion
+            Based on Signaling. PloS one 11(4), 0152756 (2016) https://doi.org/10.1371/journal.pone.0152756
                          
-            - \[6\] R. Escobedo, C. Muro, L. Spector, and R. P. Coppinger, “Group size, individual role differentiation and effectiveness of cooperation in a homogeneous group of hunters,” Journal of the Royal Society Interface, vol. 11, no. 95, p. 20140204, Jun. 2014, doi: 10.1098/rsif.2014.0204.
+            - \[6\] Escobedo, R., Muro, C., Spector, L., Coppinger, R.P.: Group size, individual role differentiation and effec-
+            tiveness of cooperation in a homogeneous group of hunters. Journal of the Royal Society interface 11(95),
+            20140204 (2014) https://doi.org/10.1098/rsif.2014.0204
                          
-            - \[7\] M. Srinivasan and B. Würsig, Social strategies of carnivorous mammalian predators. 2023. doi: 10.1007/978-3-031-29803-5.
+            - \[7\] Social Strategies of Carnivorous Mammalian Predators, (2023). https://doi.org/10.1007/978-3-031-29803-5
+            . https://doi.org/10.1007/978-3-031-29803-5
                          
-            - \[8\] J. A. Manubay and S. Powell, “Detection of prey odours underpins dietary specialization in a Neotropical top‐predator: How army ants find their ant prey,” Journal of Animal Ecology, vol. 89, no. 5, pp. 1165–1174, Mar. 2020, doi: 10.1111/1365-2656.13188.
+            - \[8\] Manubay, J.A., Powell, S.: Detection of prey odours underpins dietary specialization in a Neotropical top-
+            predator: How army ants find their ant prey. Journal of animal ecology 89(5), 1165–1174 (2020) https:
+            //doi.org/10.1111/1365-2656.13188
                          
-            - \[9\] H.-U. Schnitzler and E. K. V. Kalko, “Echolocation by Insect-Eating bats,” BioScience, vol. 51, no. 7, p. 557, Jan. 2001, doi: 10.1641/0006-3568(2001)051.
+            - \[9\] Schnitzler, H.-U., Kalko, E.K.V.: Echolocation by Insect-Eating Bats. BioScience/Bioscience 51(7), 557
+            (2001) https://doi.org/10.1641/0006-3568(2001)051
                          
-            - \[10\] R. S. Olson, A. Hintze, F. C. Dyer, D. B. Knoester, and C. Adami, “Predator confusion is sufficient to evolve swarming,” arXiv.org, Sep. 14, 2012. https://arxiv.org/abs/1209.3330v1
+            - \[10\] Olson, R.S., Hintze, A., Dyer, F.C., Knoester, D.B., Adami, C.: Predator confusion is sufficient to evolve
+            swarming (2012). https://arxiv.org/abs/1209.3330v1
                          
-            - \[11\] D. Chakraborty, S. Bhunia, and R. De, “Survival chances of a prey swarm: how the cooperative interaction range affects the outcome,” arXiv.org, Oct. 23, 2019. https://arxiv.org/abs/1910.10541
+            
+            - \[11\] Chakraborty, D., Bhunia, S., De, R.: Survival chances of a prey swarm: how the cooperative interaction
+            range affects the outcome. arXiv (Cornell University) (2019) https://doi.org/10.48550/arxiv.1910.10541
                          
-            - \[12\] M. Papadopoulou, H. Hildenbrandt, D. W. E. Sankey, S. J. Portugal, and C. K. Hemelrijk, “Self-organization of collective escape in pigeon flocks,” PLOS Computational Biology/PLoS Computational Biology, vol. 18, no. 1, p. e1009772, Jan. 2022, doi: 10.1371/journal.pcbi.1009772.
+            - \[12\] Papadopoulou, M., Hildenbrandt, H., Sankey, D.W.E., Portugal, S.J., Hemelrijk, C.K.: Self-organization
+            of collective escape in pigeon flocks. PLOS computational biology/PLoS computational biology 18(1),
+            1009772 (2022) https://doi.org/10.1371/journal.pcbi.1009772
                          
-            - \[13\] S. Marras and P. Domenici, “Schooling fish under attack are not all equal: some lead, others follow,” PloS One, vol. 8, no. 6, p. e65784, Jun. 2013, doi: 10.1371/journal.pone.0065784.
+            - \[13\] Marras, S., Domenici, P.: Schooling fish under attack are not all equal: some lead, others follow. PloS one
+            8(6), 65784 (2013) https://doi.org/10.1371/journal.pone.0065784
                          
-            - \[14\] H. Duan, M. Huo, and Y. Fan, “From animal collective behaviors to swarm robotic cooperation,” National Science Review/National Science Review, vol. 10, no. 5, Feb. 2023, doi: 10.1093/nsr/nwad040.
+            - \[14\] Duan, H., Huo, M., Fan, Y.: From animal collective behaviors to swarm robotic cooperation. National
+            Science Review/National science review 10(5) (2023) https://doi.org/10.1093/nsr/nwad040
                          
-            - \[15\] T. A. Karagüzel, A. E. Turgut, A. E. Eiben, and E. Ferrante, “Collective gradient perception with a flying robot swarm,” Swarm Intelligence, vol. 17, no. 1–2, pp. 117–146, Oct. 2022, doi: 10.1007/s11721-022-00220-1.
+            - \[15\] Karag ̈uzel, T.A., Turgut, A.E., Eiben, A.E., Ferrante, E.: Collective gradient perception with a flying robot
+            swarm. Swarm intelligence 17(1-2), 117–146 (2022) https://doi.org/10.1007/s11721-022-00220-1
                          
-            - \[16\] G. Wang, J. Xiao, R. Xue, and Y. Yuan, “A multi-group multi-agent system based on reinforcement learning and flocking,” International Journal of Control, Automation, and Systems/International Journal of Control, Automation, and Systems, vol. 20, no. 7, pp. 2364–2378, Jun. 2022, doi: 10.1007/s12555-021-0170-5.
+            - \[16\] Wang, G., Xiao, J., Xue, R., Yuan, Y.: A Multi-group Multi-agent System Based on Reinforcement Learning
+            and Flocking. International Journal of Control, Automation, and Systems/International journal of control,
+            automation, and systems 20(7), 2364–2378 (2022) https://doi.org/10.1007/s12555-021-0170-5
                          
-            - \[17\] “End-to-End control of USV swarm using graph centric Multi-Agent Reinforcement Learning,” IEEE Conference Publication | IEEE Xplore, Oct. 12, 2021. https://ieeexplore.ieee.org/document/9649839/
+            - \[17\] Lee, K., Ahn, K., Park, J.: End-to-End control of USV swarm using graph centric Multi-Agent Reinforce-
+            ment Learning. 2021 21st International Conference on Control, Automation and Systems (ICCAS) (2021)
+            https://doi.org/10.23919/iccas52745.2021.9649839
                          
-            - \[18\] O. Hamed, M. Hamlich, and M. Ennaji, “Hunting strategy for multi-robot based on wolf swarm algorithm and artificial potential field,” Indonesian Journal of Electrical Engineering and Computer Science, vol. 25, no. 1, p. 159, Jan. 2022, doi: 10.11591/ijeecs.v25.i1.pp159-171.
+            - \[18\] Hamed, O., Hamlich, M., Ennaji, M.: Hunting strategy for multi-robot based on wolf swarm algorithm and
+            artificial potential field. Indonesian journal of electrical engineering and computer science 25(1), 159 (2022)
+            https://doi.org/10.11591/ijeecs.v25.i1.pp159-171
                          
-            - \[19\] Y. Chen and T. Kolokolnikov, “A minimal model of predator–swarm interactions,” Journal of the Royal Society Interface, vol. 11, no. 94, p. 20131208, May 2014, doi: 10.1098/rsif.2013.1208.
+            - \[19\] Chen, Y., Kolokolnikov, T.: A minimal model of predator–swarm interactions. Journal of the Royal Society
+            interface 11(94), 20131208 (2014) https://doi.org/10.1098/rsif.2013.1208
                          
-            - \[20\] V. Zhdankin and J. C. Sprott, “Simple predator-prey swarming model,” Physical Review E, vol. 82, no. 5, Nov. 2010, doi: 10.1103/physreve.82.056209.
+            - \[20\] Zhdankin, V., Sprott, J.C.: Simple predator-prey swarming model. Physical review. E, Statistical, nonlinear
+            and soft matter physics 82(5) (2010) https://doi.org/10.1103/physreve.82.056209
                          
-            - \[21\] X. Li, H. Huang, A. Savkin, and J. Zhang, “Robotic herding of farm animals using a network of barking aerial drones,” Drones, vol. 6, no. 2, p. 29, Jan. 2022, doi: 10.3390/drones6020029.
+            - \[21\] Li, X., Huang, H., Savkin, A., Zhang, J.: Robotic Herding of Farm Animals Using a Network of Barking
+            Aerial Drones. Drones 6(2), 29 (2022) https://doi.org/10.3390/drones6020029
                          
-            - \[22\] Y. Xiang, X. Lei, Z. Duan, F. Dong, and Y. Gao, “Self-Organized Patchy Target Searching and Collecting with Heterogeneous Swarm Robots Based on Density Interactions,” Electronics, vol. 12, no. 12, p. 2588, Jun. 2023, doi: 10.3390/electronics12122588.
+            - \[22\] Xiang, Y., Lei, X., Duan, Z., Dong, F., Gao, Y.: Self-Organized Patchy Target Searching and Collecting
+            with Heterogeneous Swarm Robots Based on Density Interactions. Electronics 12(12), 2588 (2023) https:
+            //doi.org/10.3390/electronics12122588
                          
-            - \[23\] E. Ordaz-Rivas and L. Torres-Treviño, “Modeling and simulation of swarm of foraging robots for collecting resources using RAOI behavior Policies,” in Lecture notes in computer science, 2022, pp. 266–278. doi: 10.1007/978-3-031-19496-2_20.
+            - \[23\] Ordaz-Rivas, E., Torres-Trevi ̃no, L.: Modeling and Simulation of Swarm of Foraging Robots for
+            Collecting Resources Using RAOI Behavior Policies, pp. 266–278 (2022). https://doi.org/10.1007/
+            978-3-031-19496-2\{ . https://doi.org/10.1007/978-3-031-19496-220
                          
-            - \[24\] E. Ordaz-Rivas, A. Rodriguez-Liñan, and L. Torres-Treviño, “Flock of Robots with Self-Cooperation for Prey-Predator Task,” Journal of Intelligent & Robotic Systems, vol. 101, no. 2, Feb. 2021, doi: 10.1007/s10846-020-01283-0.
-                        
-            - \[25\] X. Sun, C. Hu, T. Liu, S. Yue, J. Peng, and Q. Fu, “Translating virtual Prey-Predator interaction to Real-World robotic environments: enabling multimodal sensing and evolutionary dynamics,” Biomimetics, vol. 8, no. 8, p. 580, Dec. 2023, doi: 10.3390/biomimetics8080580.
+            - \[24\] Ordaz-Rivas, E., Rodriguez-Li ̃nan, A., Torres-Trevi ̃no, L.: Flock of Robots with Self-Cooperation
+            for Prey-Predator Task. Journal of intelligent robotic systems 101(2) (2021) https://doi.org/10.1007/
+            s10846-020-01283-0
                          
-            - \[26\] E. Balcı, “Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge,” Chaos, Solitons & Fractals/Chaos, Solitons and Fractals, vol. 175, p. 114016, Oct. 2023, doi: 10.1016/j.chaos.2023.114016.
+            - \[25\] Sun, X., Hu, C., Liu, T., Yue, S., Peng, J., Fu, Q.: Translating Virtual Prey-Predator Interaction to Real-World
+            Robotic Environments: Enabling Multimodal Sensing and Evolutionary Dynamics. Biomimetics 8(8), 580
+            (2023) https://doi.org/10.3390/biomimetics8080580
                          
+            - \[26\] Balcı, E.: Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge.
+            Chaos, solitons fractals/Chaos, solitons and fractals 175, 114016 (2023) https://doi.org/10.1016/j.chaos.
+            2023.114016
+                         
+            - \[27\] Karag ̈uzel, T.A., Retamal, V., Cambier, N., Ferrante, E.: From Shadows to Light: A Swarm Robotics
+            Approach With Onboard Control for Seeking Dynamic Sources in Constrained Environments. IEEE robotics
+            automation letters 9(1), 127–134 (2024) https://doi.org/10.1109/lra.2023.3331897
+                                    
             ''', mathjax=True, style={'fontSize': '1.2vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbar-width': 'none', '-ms-overflow-style': 'none'}),
 
         ]
     }
-
+    
 ]
 
+
+
+
+#############################
+
+simulation = None
+predators = None
+preys = None
+current_step = 0
+boundaries = (100, 100)
+
+#############################
+
+
+# app.layout = html.Div([
+#     html.Div([
+#         html.Img(src="assets/VU_logo_RGB-01.jpg", style={'maxWidth': '15vw', 'maxHeight': '5vh', 'display': 'block'}),
+#     ], style={'width': '100%', 'textAlign': 'center', 'margin': '0 auto', 'padding': '1vh 0'}),
+#     html.H1("Sensory Heterogeneous Predator Swarm vs Fully Sensing Prey Swarm", style={'textAlign': 'center', 'fontSize': '2.5vw', 'margin': '2vh 0'}),
+#     dcc.Location(id='url', refresh=False),
+#     html.Div(id='slide-content', style={'width': '80%', 'margin': '0 auto', 'padding': '2vh', 'textAlign': 'left', 'fontSize': '2vw'}),
+    
+#     html.Div([
+#         dcc.Input(id='slide-number-input', type='number', min=0, max=len(slides)-1, value=0, 
+#                   style={'marginRight': '10px', 'padding': '1vh', 'fontSize': '1.2vw', 'width': '60px', 'textAlign': 'center', 'scrollbar-width': 'none', '-ms-overflow-style': 'none'}),
+#         html.Span(f"/{len(slides)-1}", style={'fontSize': '1.5vw'}),
+#     ], style={'textAlign': 'center', 'marginTop': '1vh'}),
+#     html.Div([
+#         html.Button('Previous', id='prev-button', n_clicks=0, style={'marginRight': '10px', 'padding': '1vh', 'fontSize': '1.2vw', "pointer": "cursor"}),
+#         html.Button('Next', id='next-button', n_clicks=0, style={'marginLeft': '10px', 'padding': '1vh', 'fontSize': '1.2vw', "pointer": "cursor"}),
+#     ], style={'textAlign': 'center', 'marginTop': '2vh', "pointer": "cursor"}),
+# ], style={'maxWidth': '100vw', 'margin': '0 auto', 'padding': '2vh 0', 'scrollbar-width': 'none', '-ms-overflow-style': 'none'})
 
 app.layout = html.Div([
     html.Div([
         html.Img(src="assets/VU_logo_RGB-01.jpg", style={'maxWidth': '15vw', 'maxHeight': '5vh', 'display': 'block'}),
     ], style={'width': '100%', 'textAlign': 'center', 'margin': '0 auto', 'padding': '1vh 0'}),
     html.H1("Sensory Heterogeneous Predator Swarm vs Fully Sensing Prey Swarm", style={'textAlign': 'center', 'fontSize': '2.5vw', 'margin': '2vh 0'}),
-    dcc.Location(id='url', refresh=False),
+    dcc.Location(id='url', refresh=True),
     html.Div(id='slide-content', style={'width': '80%', 'margin': '0 auto', 'padding': '2vh', 'textAlign': 'left', 'fontSize': '2vw'}),
+
+    html.Div(id='simulation-container'),  # Add this line
+    
     html.Div([
-        dcc.Input(id='slide-number-input', type='number', min=0, max=len(slides)-1, value=0,
-                  style={'marginRight': '10px', 'padding': '1vh', 'fontSize': '1.2vw', 'width': '60px', 'textAlign': 'center', 'scrollbar-width': 'none', '-ms-overflow-style': 'none'}),
+        dcc.Input(id='slide-number-input', type='number', min=0, max=len(slides)-1, value=0, 
+                  style={'marginRight': '10px', 'padding': '1vh', 'fontSize': '1.2vw', 'width': '60px', 'textAlign': 'center'}),
         html.Span(f"/{len(slides)-1}", style={'fontSize': '1.5vw'}),
     ], style={'textAlign': 'center', 'marginTop': '1vh'}),
+
+    
+
+
     html.Div([
-        html.Button('Previous', id='prev-button', n_clicks=0, style={'marginRight': '10px', 'padding': '1vh', 'fontSize': '1.2vw', "pointer": "cursor"}),
-        html.Button('Next', id='next-button', n_clicks=0, style={'marginLeft': '10px', 'padding': '1vh', 'fontSize': '1.2vw', "pointer": "cursor"}),
-    ], style={'textAlign': 'center', 'marginTop': '2vh', "pointer": "cursor"}),
-], style={'maxWidth': '100vw', 'margin': '0 auto', 'padding': '2vh 0', 'scrollbar-width': 'none', '-ms-overflow-style': 'none'})
+        html.Button('Previous', id='prev-button', n_clicks=0, style={'marginRight': '10px', 'padding': '1vh', 'fontSize': '1.2vw', "cursor": "pointer"}),
+        html.Button('Next', id='next-button', n_clicks=0, style={'marginLeft': '10px', 'padding': '1vh', 'fontSize': '1.2vw', "cursor": "pointer"}),
+    ], style={'textAlign': 'center', 'marginTop': '2vh'}),
+
+    # html.Div(id='simulation-container'),  # Add this line
+    
+], style={'maxWidth': '100vw', 'margin': '0 auto', 'padding': '2vh 0'})
 
 @app.callback(
     Output('slide-content', 'children'),
+    # Output('live-graph', 'figure'),
     Output('url', 'pathname'),
     Output('slide-number-input', 'value'),
     Input('prev-button', 'n_clicks'),
@@ -528,6 +635,9 @@ app.layout = html.Div([
     State('slide-number-input', 'value'),
     State('url', 'pathname')
 )
+
+
+
 def update_slide(prev_clicks, next_clicks, slide_number_submit, slide_number, pathname):
     # Determine the current slide index
     current_index = int(pathname.strip('/')) if pathname and pathname.strip('/').isdigit() else 0
@@ -553,6 +663,240 @@ def update_slide(prev_clicks, next_clicks, slide_number_submit, slide_number, pa
 
     # Update the URL to reflect the current slide
     return content, f'/{current_index}', current_index
+
+
+@app.callback(
+    Output('simulation-container', 'children'),
+    Input('url', 'pathname')
+)
+def render_simulation(pathname):
+    current_index = int(pathname.strip('/')) if pathname and pathname.strip('/').isdigit() else 0
+    if current_index == 13:
+        return [
+            html.Div([
+                html.Div([
+                    html.Label('Number of Predators', style={'display': 'block', 'marginBottom': '5px'}),
+                    dcc.Input(id='n-predators', type='number', value=30, max=50, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    html.Label('Number of Preys', style={'display': 'block', 'marginBottom': '5px'}),
+                    dcc.Input(id='n-preys', type='number', value=30, max=50, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    html.Label('Predator Sensor Range', style={'display': 'block', 'marginBottom': '5px'}),
+                    dcc.Input(id='predator-sensor-range', type='number', value=3.5, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    html.Label('Prey Sensing Range', style={'display': 'block', 'marginBottom': '5px'}),
+                    dcc.Input(id='prey-sensing-range', type='number', value=3.5, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    html.Label('No Sensor', style={'display': 'block', 'marginBottom': '5px'}),
+                    dcc.Input(id='no-sensor', type='number', value=0, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    dcc.Checklist(id='pdm', options=[{'label': 'P-ADM', 'value': 'P-ADM'}], value=['P-ADM'], style={'marginBottom': '5px'}),
+                    dcc.Checklist(id='pdm-prey', options=[{'label': 'P-ADM Prey', 'value': 'PDM_PREY'}], value=[], style={'marginBottom': '5px'}),
+                    html.Label('Steps', style={'display': 'block', 'marginBottom': '5px'}),
+                    dcc.Input(id='steps', type='number', value=5000, min=50, max=5000, step=50, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    html.Div([
+                        html.Button('Start', id='start-button', n_clicks=0, style={'padding': '5px 10px', 'marginRight': '5px', 'cursor': 'pointer'}),
+                        html.Button('Stop', id='stop-button', n_clicks=0, style={'padding': '5px 10px', 'marginRight': '5px', 'cursor': 'pointer'}),
+                        html.Button('Restart', id='restart-button', n_clicks=0, style={'padding': '5px 10px', 'cursor': 'pointer'}),
+                    ], style={'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'center', 'marginTop': '10px'}),
+                ], style={'width': '30%', 'padding': '10px', 'boxSizing': 'border-box'}),
+                html.Div([
+                    dcc.Graph(id='live-graph', style={'height': '100%'})
+                ], style={'width': '70%', 'padding': '10px', 'boxSizing': 'border-box'}),
+                dcc.Interval(id='interval-component', interval=200, n_intervals=50),
+            ], style={'display': 'flex', 'flexDirection': 'row', 'fontSize': '1.vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbarWidth': 'none'})
+        ]
+    return []
+
+
+
+##################################################################################################################################################################################################
+@app.callback(
+    [Output('live-graph', 'figure'), Output('interval-component', 'disabled')],
+    [Input('start-button', 'n_clicks'),
+     Input('stop-button', 'n_clicks'),
+     Input('restart-button', 'n_clicks'),
+     Input('interval-component', 'n_intervals')],
+    [State('n-predators', 'value'),
+     State('n-preys', 'value'),
+     State('predator-sensor-range', 'value'),
+     State('prey-sensing-range', 'value'),
+     State('no-sensor', 'value'),
+     State('pdm', 'value'),
+     State('pdm-prey', 'value'),
+     State('steps', 'value')]
+)
+
+# def update_graph(start_clicks, 
+#                  stop_clicks, 
+#                  restart_clicks, 
+#                  n_intervals, 
+#                  n_preys, 
+#                  n_predators, 
+#                  prey_sensing_range, 
+#                  predator_sensor_range, 
+#                  no_sensor, 
+#                  pdm, 
+#                  pdm_prey,
+#                  steps):
+def update_simulation(start_clicks, 
+                      stop_clicks, 
+                      restart_clicks, 
+                      n_intervals, 
+                      n_predators, 
+                      n_preys, 
+                      predator_sensor_range, 
+                      prey_sensing_range, 
+                      no_sensor, 
+                      pdm, 
+                      pdm_prey, 
+                      steps):
+    global simulation, predators, preys, current_step
+
+
+
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update, True
+
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    # print(button_id)
+
+    if button_id in ['start-button', 'restart-button']:
+        current_step = 0
+        simulation = PredatorPreySimulation(
+            boundaries = boundaries, 
+            N = n_predators, 
+            N_preys = n_preys, 
+            predator_sensor_range = predator_sensor_range,
+            sigma_i_pred_non_sensing = 0.75, 
+            sigma_i_predator = 0.7,
+            sigma_i_pred_non_sensing_DM = 1.4,
+            sigma_i_pred_DM = 1.7,
+            sigma_i_prey = 0.7,
+            epsilon = 12.0,
+            epsilon_prey = 12.0, 
+            Dp = 4.0, 
+            Dp_prey = 3.5, 
+            Dp_pm = 3.5,
+            Dr = 0.5, 
+            L0 = 0.5, 
+            k_rep = 2.0, 
+            alpha = 1.0, 
+            beta = 0.0, 
+            gamma = 0.0,
+            alpha_prey = 1.0, 
+            kappa = 0.0, 
+            Uc = 0.05, 
+            Umax = 0.15, 
+            omegamax = np.pi/3, 
+            K1 = 0.5, 
+            K2 = 0.05,
+            no_sensor = no_sensor,
+            pdm = pdm, 
+            pdm_prey = pdm_prey,
+            prey_sensing_range = prey_sensing_range,
+        )
+
+        predators, preys = simulation.generate_agents_and_preys()
+        return create_figure(preys, predators), False
+
+    elif button_id == 'stop-button':
+        print("Stop button clicked")
+        current_step = 0
+        simulation = None
+        return dash.no_update, False
+
+    # if button_id == 'interval-component':
+    if simulation is not None:
+        while current_step < steps:
+            preys, predators = simulation.simulate(preys, predators)
+            current_step += 1
+            # print(current_step)
+            if current_step % 50 == 0 or current_step == steps:
+                fig = create_figure(preys, predators, current_step) 
+                return fig, False
+            if current_step + 1 == steps:
+                current_step = 0
+                simulation = None
+                return dash.no_update, False
+    return dash.no_update, False
+
+
+def create_figure(preys, predators, current_step=0):
+    # Calculate the centers of mass for preys and predators
+    # print(current_step, "called")    
+    prey_center = np.mean(preys[:, :2], axis=0)
+    predator_center = np.mean(predators[:, :2], axis=0)
+    
+    # Calculate the overall center as the midpoint between prey and predator centers
+    center_x, center_y = (prey_center + predator_center) / 2
+    
+    # Calculate the maximum distance from the center to any agent
+    all_agents = np.vstack((preys[:, :2], predators[:, :2]))
+    max_distance = np.max(np.linalg.norm(all_agents - [center_x, center_y], axis=1))
+    
+    # Define the plot range (make it slightly larger than max_distance for padding)
+    plot_range = max_distance * 2.5
+
+    fig = go.Figure()
+
+    # Function to calculate end points of lines
+    def calculate_end_points(agents, line_length=0.5):
+        x_start, y_start = agents[:, 0], agents[:, 1]
+        x_end = x_start + line_length * np.cos(agents[:, 2])
+        y_end = y_start + line_length * np.sin(agents[:, 2])
+        return x_start, y_start, x_end, y_end
+
+    # Add preys to the figure
+    x_start, y_start, x_end, y_end = calculate_end_points(preys)
+    for i in range(len(preys)):
+        fig.add_trace(go.Scatter(
+            x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
+            mode='lines+markers',
+            line=dict(color='blue', width=2),
+            marker=dict(symbol='arrow', size=8, angleref='previous', color='blue'),
+            showlegend=i==0,
+            name='Preys'
+        ))
+
+    # Add predators to the figure
+    predators_with_sensors = predators[predators[:, 3] == 1]
+    predators_without_sensors = predators[predators[:, 3] == 0]
+    
+    # Predators with sensors
+    x_start, y_start, x_end, y_end = calculate_end_points(predators_with_sensors)
+    for i in range(len(predators_with_sensors)):
+        fig.add_trace(go.Scatter(
+            x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
+            mode='lines+markers',
+            line=dict(color='red', width=2),
+            marker=dict(symbol='arrow', size=10, angleref='previous', color='red'),
+            showlegend=i==0,
+            name='Predators with Sensors'
+        ))
+    
+    # Predators without sensors
+    x_start, y_start, x_end, y_end = calculate_end_points(predators_without_sensors)
+    for i in range(len(predators_without_sensors)):
+        fig.add_trace(go.Scatter(
+            x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
+            mode='lines+markers',
+            line=dict(color='green', width=2),
+            marker=dict(symbol='arrow', size=10, angleref='previous', color='green'),
+            showlegend=i==0,
+            name='Predators without Sensors'
+        ))
+
+    # Update layout
+    fig.update_layout(
+        xaxis_range=[center_x - plot_range, center_x + plot_range],
+        yaxis_range=[center_y - plot_range, center_y + plot_range],
+        xaxis=dict(visible=True, title='X', scaleanchor="y", scaleratio=1),
+        yaxis=dict(visible=True, title='Y'),
+        showlegend=True,
+        margin=dict(l=0, r=0, t=0, b=0),
+        width=800,
+        height=400
+    )
+    
+    return fig
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
