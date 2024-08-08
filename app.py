@@ -4,6 +4,8 @@ import dash_katex
 from typing import Tuple, List
 from sim import PredatorPreySimulation
 import plotly.graph_objs as go
+# import plotly.express as px
+# import pandas as pd
 import numpy as np
 # Initialize the Dash app
 app = dash.Dash(__name__, title='Thesis Presentation', suppress_callback_exceptions=True)
@@ -578,27 +580,6 @@ current_step = 0
 boundaries = (100, 100)
 
 #############################
-
-
-# app.layout = html.Div([
-#     html.Div([
-#         html.Img(src="assets/VU_logo_RGB-01.jpg", style={'maxWidth': '15vw', 'maxHeight': '5vh', 'display': 'block'}),
-#     ], style={'width': '100%', 'textAlign': 'center', 'margin': '0 auto', 'padding': '1vh 0'}),
-#     html.H1("Sensory Heterogeneous Predator Swarm vs Fully Sensing Prey Swarm", style={'textAlign': 'center', 'fontSize': '2.5vw', 'margin': '2vh 0'}),
-#     dcc.Location(id='url', refresh=False),
-#     html.Div(id='slide-content', style={'width': '80%', 'margin': '0 auto', 'padding': '2vh', 'textAlign': 'left', 'fontSize': '2vw'}),
-    
-#     html.Div([
-#         dcc.Input(id='slide-number-input', type='number', min=0, max=len(slides)-1, value=0, 
-#                   style={'marginRight': '10px', 'padding': '1vh', 'fontSize': '1.2vw', 'width': '60px', 'textAlign': 'center', 'scrollbar-width': 'none', '-ms-overflow-style': 'none'}),
-#         html.Span(f"/{len(slides)-1}", style={'fontSize': '1.5vw'}),
-#     ], style={'textAlign': 'center', 'marginTop': '1vh'}),
-#     html.Div([
-#         html.Button('Previous', id='prev-button', n_clicks=0, style={'marginRight': '10px', 'padding': '1vh', 'fontSize': '1.2vw', "pointer": "cursor"}),
-#         html.Button('Next', id='next-button', n_clicks=0, style={'marginLeft': '10px', 'padding': '1vh', 'fontSize': '1.2vw', "pointer": "cursor"}),
-#     ], style={'textAlign': 'center', 'marginTop': '2vh', "pointer": "cursor"}),
-# ], style={'maxWidth': '100vw', 'margin': '0 auto', 'padding': '2vh 0', 'scrollbar-width': 'none', '-ms-overflow-style': 'none'})
-
 app.layout = html.Div([
     html.Div([
         html.Img(src="assets/VU_logo_RGB-01.jpg", style={'maxWidth': '15vw', 'maxHeight': '5vh', 'display': 'block'}),
@@ -701,7 +682,7 @@ def render_simulation(pathname):
                 html.Div([
                     dcc.Graph(id='live-graph', style={'height': '90%', 'width': '80%', 'margin': '0 auto'}),
                 ], style={'width': '70%', 'padding': '10px', 'boxSizing': 'border-box', 'overflow': 'auto', 'scrollbarWidth': 'none'}),
-                dcc.Interval(id='interval-component', interval=200, n_intervals=50),
+                dcc.Interval(id='interval-component', interval=350, n_intervals=100),
             ], style={'display': 'flex', 'flexDirection': 'row', 'fontSize': '1.vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbarWidth': 'none'})
         ]
     return []
@@ -725,18 +706,7 @@ def render_simulation(pathname):
      State('steps', 'value')]
 )
 
-# def update_graph(start_clicks, 
-#                  stop_clicks, 
-#                  restart_clicks, 
-#                  n_intervals, 
-#                  n_preys, 
-#                  n_predators, 
-#                  prey_sensing_range, 
-#                  predator_sensor_range, 
-#                  no_sensor, 
-#                  pdm, 
-#                  pdm_prey,
-#                  steps):
+
 def update_simulation(start_clicks, 
                       stop_clicks, 
                       restart_clicks, 
@@ -800,24 +770,24 @@ def update_simulation(start_clicks,
         return create_figure(preys, predators), False
 
     elif button_id == 'stop-button':
-        print("Stop button clicked")
+        # print("Stop button clicked")
         current_step = 0
         simulation = None
         return dash.no_update, False
 
-    # if button_id == 'interval-component':
-    if simulation is not None:
-        while current_step < steps:
-            preys, predators = simulation.simulate(preys, predators)
-            current_step += 1
-            # print(current_step)
-            if current_step % 50 == 0 or current_step == steps:
-                fig = create_figure(preys, predators, current_step) 
-                return fig, False
-            if current_step + 1 == steps:
-                current_step = 0
-                simulation = None
-                return dash.no_update, False
+    if button_id == 'interval-component':
+        if simulation is not None:
+            while current_step < steps:
+                preys_, predators_ = simulation.simulate(preys, predators)
+                current_step += 1
+                # print(current_step)
+                if current_step % 50 == 0 or current_step == steps: 
+                    return create_figure(preys_, predators_, current_step) , False
+                if current_step + 1 == steps:
+                    current_step = 0
+                    simulation = None
+                    print("Simulation ended")
+                    return dash.no_update, False
     return dash.no_update, False
 
 
