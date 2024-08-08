@@ -700,7 +700,7 @@ def render_simulation(pathname):
                 ], style={'width': '30%', 'padding': '10px', 'boxSizing': 'border-box', 'borderRight': '1px solid #ddd', 'marginLeft': '100px'}),
                 html.Div([
                     dcc.Graph(id='live-graph', style={'height': '90%', 'width': '80%', 'margin': '0 auto'}),
-                ], style={'width': '70%', 'padding': '10px', 'boxSizing': 'border-box'}),
+                ], style={'width': '70%', 'padding': '10px', 'boxSizing': 'border-box', 'overflow': 'auto', 'scrollbarWidth': 'none'}),
                 dcc.Interval(id='interval-component', interval=200, n_intervals=50),
             ], style={'display': 'flex', 'flexDirection': 'row', 'fontSize': '1.vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbarWidth': 'none'})
         ]
