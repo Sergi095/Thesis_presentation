@@ -436,9 +436,13 @@ slides = [
 {
     "title": "Simulation Playground",
     "content": [
+                    dcc.Markdown(r'''
+                    *Note*: Since this playground is running with a free hosting service, it will be very slow 😞
+                                 
+                    The best to play with this slide is to [clone this presentation](https://github.com/Sergi095/Thesis_presentation.git) and run it locally
+                                ''', style={'fontSize': '1vw', 'textAlign': 'center'}),
 
-
-    ]
+                ],
 
 }
 ,
@@ -693,9 +697,9 @@ def render_simulation(pathname):
                         html.Button('Stop', id='stop-button', n_clicks=0, style={'padding': '5px 10px', 'marginRight': '5px', 'cursor': 'pointer'}),
                         html.Button('Restart', id='restart-button', n_clicks=0, style={'padding': '5px 10px', 'cursor': 'pointer'}),
                     ], style={'display': 'flex', 'flexDirection': 'row', 'justifyContent': 'center', 'marginTop': '10px'}),
-                ], style={'width': '30%', 'padding': '10px', 'boxSizing': 'border-box'}),
+                ], style={'width': '30%', 'padding': '10px', 'boxSizing': 'border-box', 'borderRight': '1px solid #ddd', 'marginLeft': '100px'}),
                 html.Div([
-                    dcc.Graph(id='live-graph', style={'height': '100%'})
+                    dcc.Graph(id='live-graph', style={'height': '90%', 'width': '80%', 'margin': '0 auto'}),
                 ], style={'width': '70%', 'padding': '10px', 'boxSizing': 'border-box'}),
                 dcc.Interval(id='interval-component', interval=200, n_intervals=50),
             ], style={'display': 'flex', 'flexDirection': 'row', 'fontSize': '1.vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbarWidth': 'none'})
