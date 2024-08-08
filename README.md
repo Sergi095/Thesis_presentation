@@ -1,6 +1,6 @@
 # MSc Thesis Presentation: Sensory Heterogeneous Predator Swarm vs Fully Sensing Prey Swarm
 
-This presentation is made with Dash and it is deployed on a free hosting service. The presentation can be found at [Link](https://thesis-presentation.onrender.com/).
+This presentation is made with Dash and it is deployed on a free hosting service. The presentation can be found at [Link](https://sergi095.pythonanywhere.com/0).
 
 There is a small playground where you can run a small 2D simulation of preys and predators, but since it is hosted on a free web service, the simulation will run slow 😞. Therefore, the best is to run the app locally and see how it works.
 
