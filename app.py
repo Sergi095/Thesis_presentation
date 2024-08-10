@@ -870,17 +870,16 @@ def update_simulation(start_clicks, stop_clicks, restart_clicks, n_intervals,
 
 def create_figure(preys, predators, current_step=0):
     # Calculate the centers of mass for preys and predators
-    # print(current_step, "called")    
     prey_center = np.mean(preys[:, :2], axis=0)
     predator_center = np.mean(predators[:, :2], axis=0)
-    
+
     # Calculate the overall center as the midpoint between prey and predator centers
     center_x, center_y = (prey_center + predator_center) / 2
-    
+
     # Calculate the maximum distance from the center to any agent
     all_agents = np.vstack((preys[:, :2], predators[:, :2]))
     max_distance = np.max(np.linalg.norm(all_agents - [center_x, center_y], axis=1))
-    
+
     # Define the plot range (make it slightly larger than max_distance for padding)
     plot_range = max_distance * 2.5
 
@@ -895,42 +894,57 @@ def create_figure(preys, predators, current_step=0):
 
     # Add preys to the figure
     x_start, y_start, x_end, y_end = calculate_end_points(preys)
+    fig.add_trace(go.Scatter(
+        x=preys[:, 0], y=preys[:, 1],
+        mode='markers',
+        marker=dict(symbol='circle', size=8, color='blue'),
+        showlegend=True,
+        name='Preys'
+    ))
     for i in range(len(preys)):
         fig.add_trace(go.Scatter(
             x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
-            mode='lines+markers',
+            mode='lines',
             line=dict(color='blue', width=2),
-            marker=dict(symbol='arrow', size=8, angleref='previous', color='blue'),
-            showlegend=i==0,
-            name='Preys'
+            showlegend=False
         ))
 
     # Add predators to the figure
     predators_with_sensors = predators[predators[:, 3] == 1]
     predators_without_sensors = predators[predators[:, 3] == 0]
-    
+
     # Predators with sensors
     x_start, y_start, x_end, y_end = calculate_end_points(predators_with_sensors)
+    fig.add_trace(go.Scatter(
+        x=predators_with_sensors[:, 0], y=predators_with_sensors[:, 1],
+        mode='markers',
+        marker=dict(symbol='circle', size=10, color='red'),
+        showlegend=True,
+        name='Predators with Sensors'
+    ))
     for i in range(len(predators_with_sensors)):
         fig.add_trace(go.Scatter(
             x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
-            mode='lines+markers',
+            mode='lines',
             line=dict(color='red', width=2),
-            marker=dict(symbol='arrow', size=10, angleref='previous', color='red'),
-            showlegend=i==0,
-            name='Predators with Sensors'
+            showlegend=False
         ))
-    
+
     # Predators without sensors
     x_start, y_start, x_end, y_end = calculate_end_points(predators_without_sensors)
+    fig.add_trace(go.Scatter(
+        x=predators_without_sensors[:, 0], y=predators_without_sensors[:, 1],
+        mode='markers',
+        marker=dict(symbol='circle', size=10, color='green'),
+        showlegend=True,
+        name='Predators without Sensors'
+    ))
     for i in range(len(predators_without_sensors)):
         fig.add_trace(go.Scatter(
             x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
-            mode='lines+markers',
+            mode='lines',
             line=dict(color='green', width=2),
-            marker=dict(symbol='arrow', size=10, angleref='previous', color='green'),
-            showlegend=i==0,
-            name='Predators without Sensors'
+            showlegend=False
         ))
 
     # Update layout
@@ -944,8 +958,9 @@ def create_figure(preys, predators, current_step=0):
         width=800,
         height=400
     )
-    
+
     return fig
+
 
 
 if __name__ == '__main__':
