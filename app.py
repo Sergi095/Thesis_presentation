@@ -589,6 +589,7 @@ app.layout = html.Div([
     html.Div(id='slide-content', style={'width': '80%', 'margin': '0 auto', 'padding': '2vh', 'textAlign': 'left', 'fontSize': '2vw'}),
 
     html.Div(id='simulation-container'),  # Add this line
+    dcc.Store(id='simulation-running', data=False),
     
     html.Div([
         dcc.Input(id='slide-number-input', type='number', min=0, max=len(slides)-1, value=0, 
@@ -694,8 +695,35 @@ def render_simulation(pathname):
 
 
 ##################################################################################################################################################################################################
+# @app.callback(
+#     [Output('live-graph', 'figure'), Output('interval-component', 'disabled'), Output('simulation-status', 'children')],
+#     [Input('start-button', 'n_clicks'),
+#      Input('stop-button', 'n_clicks'),
+#      Input('restart-button', 'n_clicks'),
+#      Input('interval-component', 'n_intervals')],
+#     [State('n-predators', 'value'),
+#      State('n-preys', 'value'),
+#      State('predator-sensor-range', 'value'),
+#      State('prey-sensing-range', 'value'),
+#      State('no-sensor', 'value'),
+#      State('pdm', 'value'),
+#      State('pdm-prey', 'value'),
+#      State('steps', 'value')]
+# )
+
 @app.callback(
-    [Output('live-graph', 'figure'), Output('interval-component', 'disabled'), Output('simulation-status', 'children')],
+    [Output('live-graph', 'figure'), 
+     Output('interval-component', 'disabled'), 
+     Output('simulation-status', 'children'),
+     Output('simulation-running', 'data'),
+     Output('n-predators', 'disabled'),
+     Output('n-preys', 'disabled'),
+     Output('predator-sensor-range', 'disabled'),
+     Output('prey-sensing-range', 'disabled'),
+     Output('no-sensor', 'disabled'),
+     Output('pdm', 'disabled'),
+     Output('pdm-prey', 'disabled'),
+     Output('steps', 'disabled')],
     [Input('start-button', 'n_clicks'),
      Input('stop-button', 'n_clicks'),
      Input('restart-button', 'n_clicks'),
@@ -707,7 +735,8 @@ def render_simulation(pathname):
      State('no-sensor', 'value'),
      State('pdm', 'value'),
      State('pdm-prey', 'value'),
-     State('steps', 'value')]
+     State('steps', 'value'),
+     State('simulation-running', 'data')]
 )
 
 
@@ -729,7 +758,7 @@ def update_simulation(start_clicks,
 
     ctx = dash.callback_context
     if not ctx.triggered:
-        return dash.no_update, True, 'Click Start to begin simulation'
+        return dash.no_update, True, 'Click Start to begin simulation', False, False, False, False, False, False, False, False, False
 
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     # print(button_id)
@@ -771,13 +800,13 @@ def update_simulation(start_clicks,
         )
 
         predators, preys = simulation.generate_agents_and_preys()
-        return create_figure(preys, predators), False, 'Simulation started'
+        return create_figure(preys, predators), False, 'Simulation started', True, True, True, True, True, True, True, True, True
 
     if button_id == 'stop-button':
         # print("Stop button clicked")
         current_step = 0
         simulation = None
-        return dash.no_update, False, 'Simulation stopped'
+        return dash.no_update, True, 'Simulation stopped', False, False, False, False, False, False, False, False, False
 
     if button_id == 'interval-component':
         if simulation is not None:
@@ -786,13 +815,13 @@ def update_simulation(start_clicks,
                 current_step += 1
                 # print(current_step)
                 if current_step % 50 == 0 or current_step == steps: 
-                    return create_figure(preys_, predators_, current_step) , False, 'Simulation running, step: {}'.format(current_step)
+                    return create_figure(preys_, predators_, current_step), False, f'Simulation running, step: {current_step}', True, True, True, True, True, True, True, True, True
                 if current_step + 1 == steps:
                     current_step = 0
                     simulation = None
                     # print("Simulation ended")
-                    return dash.no_update, False, 'Simulation ended'
-    return dash.no_update, False, 'Click Start or Restart to begin simulation'
+                    return dash.no_update, True, 'Simulation ended', False, False, False, False, False, False, False, False, False
+    return dash.no_update, False, 'Click Start or Restart to begin simulation', False, False, False, False, False, False, False, False, False
 
 
 def create_figure(preys, predators, current_step=0):
