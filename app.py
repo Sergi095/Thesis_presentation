@@ -685,7 +685,7 @@ def render_simulation(pathname):
                     dcc.Graph(id='live-graph', style={'height': '90%', 'width': '80%', 'margin': '0 auto'}),
                     html.Div(id='simulation-status', style={'textAlign': 'left', 'marginTop': '10px', 'fontSize': '1.2vw'}),
                 ], style={'width': '70%', 'padding': '10px', 'boxSizing': 'border-box', 'overflow': 'auto', 'scrollbarWidth': 'none'}),
-                dcc.Interval(id='interval-component', interval=350, n_intervals=100),
+                dcc.Interval(id='interval-component', interval=400, n_intervals=100), # local host 100 ms
             ], style={'display': 'flex', 'flexDirection': 'row', 'fontSize': '1.vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbarWidth': 'none'})
         ]
     return []

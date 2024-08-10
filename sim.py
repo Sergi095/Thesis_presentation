@@ -72,6 +72,7 @@ class PredatorPreySimulation:
 
     def no_sensor_agents(self, no_sensor: float, predators: np.array, preys: np.array) -> np.array:
         N = len(predators)
+        no_sensor = 1 - no_sensor
         no_sensor_agents = np.ones(N)
         no_sensor_count = int(no_sensor * N)
         
