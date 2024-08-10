@@ -663,9 +663,9 @@ def render_simulation(pathname):
             html.Div([
                 html.Div([
                     html.Label('Number of Predators', style={'display': 'block', 'marginBottom': '5px'}),
-                    dcc.Input(id='n-predators', type='number', value=30, max=50, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    dcc.Input(id='n-predators', type='number', value=30,min=1, max=50, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     html.Label('Number of Preys', style={'display': 'block', 'marginBottom': '5px'}),
-                    dcc.Input(id='n-preys', type='number', value=30, max=50, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    dcc.Input(id='n-preys', type='number', value=30, max=50,min=1, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     html.Label('Predator Sensor Range', style={'display': 'block', 'marginBottom': '5px'}),
                     dcc.Input(id='predator-sensor-range', type='number', value=3, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     html.Label('Prey Sensing Range', style={'display': 'block', 'marginBottom': '5px'}),
