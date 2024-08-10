@@ -653,6 +653,8 @@ def update_slide(prev_clicks, next_clicks, slide_number_submit, slide_number, pa
     Output('simulation-container', 'children'),
     Input('url', 'pathname')
 )
+
+
 def render_simulation(pathname):
     current_index = int(pathname.strip('/')) if pathname and pathname.strip('/').isdigit() else 0
     if current_index == 13:
@@ -667,8 +669,8 @@ def render_simulation(pathname):
                     dcc.Input(id='predator-sensor-range', type='number', value=3.5, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     html.Label('Prey Sensing Range', style={'display': 'block', 'marginBottom': '5px'}),
                     dcc.Input(id='prey-sensing-range', type='number', value=3.5, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
-                    html.Label('No Sensor', style={'display': 'block', 'marginBottom': '5px'}),
-                    dcc.Input(id='no-sensor', type='number', value=0, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    html.Label('% of No Sensor Predators', style={'display': 'block', 'marginBottom': '5px'}),
+                    dcc.Input(id='no-sensor', type='number', value=0,min=0, max=1, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     dcc.Checklist(id='pdm', options=[{'label': 'P-ADM', 'value': 'P-ADM'}], value=['P-ADM'], style={'marginBottom': '5px'}),
                     dcc.Checklist(id='pdm-prey', options=[{'label': 'P-ADM Prey', 'value': 'PDM_PREY'}], value=[], style={'marginBottom': '5px'}),
                     html.Label('Steps', style={'display': 'block', 'marginBottom': '5px'}),
@@ -681,6 +683,7 @@ def render_simulation(pathname):
                 ], style={'width': '30%', 'padding': '10px', 'boxSizing': 'border-box', 'borderRight': '1px solid #ddd', 'marginLeft': '100px'}),
                 html.Div([
                     dcc.Graph(id='live-graph', style={'height': '90%', 'width': '80%', 'margin': '0 auto'}),
+                    html.Div(id='simulation-status', style={'textAlign': 'left', 'marginTop': '10px', 'fontSize': '1.2vw'}),
                 ], style={'width': '70%', 'padding': '10px', 'boxSizing': 'border-box', 'overflow': 'auto', 'scrollbarWidth': 'none'}),
                 dcc.Interval(id='interval-component', interval=350, n_intervals=100),
             ], style={'display': 'flex', 'flexDirection': 'row', 'fontSize': '1.vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbarWidth': 'none'})
@@ -691,7 +694,7 @@ def render_simulation(pathname):
 
 ##################################################################################################################################################################################################
 @app.callback(
-    [Output('live-graph', 'figure'), Output('interval-component', 'disabled')],
+    [Output('live-graph', 'figure'), Output('interval-component', 'disabled'), Output('simulation-status', 'children')],
     [Input('start-button', 'n_clicks'),
      Input('stop-button', 'n_clicks'),
      Input('restart-button', 'n_clicks'),
@@ -721,11 +724,9 @@ def update_simulation(start_clicks,
                       steps):
     global simulation, predators, preys, current_step
 
-
-
     ctx = dash.callback_context
     if not ctx.triggered:
-        return dash.no_update, True
+        return dash.no_update, True, 'Click Start to begin simulation'
 
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     # print(button_id)
@@ -767,13 +768,13 @@ def update_simulation(start_clicks,
         )
 
         predators, preys = simulation.generate_agents_and_preys()
-        return create_figure(preys, predators), False
+        return create_figure(preys, predators), False, 'Simulation started'
 
-    elif button_id == 'stop-button':
+    if button_id == 'stop-button':
         # print("Stop button clicked")
         current_step = 0
         simulation = None
-        return dash.no_update, False
+        return dash.no_update, False, 'Simulation stopped'
 
     if button_id == 'interval-component':
         if simulation is not None:
@@ -782,13 +783,13 @@ def update_simulation(start_clicks,
                 current_step += 1
                 # print(current_step)
                 if current_step % 50 == 0 or current_step == steps: 
-                    return create_figure(preys_, predators_, current_step) , False
+                    return create_figure(preys_, predators_, current_step) , False, 'Simulation running, step: {}'.format(current_step)
                 if current_step + 1 == steps:
                     current_step = 0
                     simulation = None
-                    print("Simulation ended")
-                    return dash.no_update, False
-    return dash.no_update, False
+                    # print("Simulation ended")
+                    return dash.no_update, False, 'Simulation ended'
+    return dash.no_update, False, 'Click Start or Restart to begin simulation'
 
 
 def create_figure(preys, predators, current_step=0):
