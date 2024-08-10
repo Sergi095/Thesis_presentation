@@ -14,7 +14,6 @@ app.tile = "Thesis Presentation"
 # app.favicon = "assets/icon.ico"
 # VU_logo_RGB-01.jpg
 
-# Sample slide definitions
 slides = [
     # {
     #     "title": "By Sergio A. Gutierrez Maury",
@@ -121,13 +120,14 @@ slides = [
             html.Div([
                 dcc.Markdown(r'''
 
-                - Reinforcement Learning Approaches: Studies integrating Reinforcement Learning (RL) with flocking control to model predator-prey interactions, showing improved learning efficiency and coordination. \[[16-18](/15)\]
+                - Reinforcement Learning Approaches: Studies integrating Reinforcement Learning (RL) with flocking control to model predator-prey interactions. In their methods authors use: Q-learning or Graph-centric Multi-Agent Reinforcement Learning (MARL). \[[16-18](/15)\]
 
                 - Mathematical Models and Theoretical Analysis: Development of minimal models and particle-based approaches to study predator-swarm dynamics, revealing various interaction patterns like escape, confusion, and capture. \[[19-20](/15)\]
 
                 - Applications and Practical Implementations: Use of prey-predator algorithms in real-world scenarios such as surveillance and herding with autonomous drones, demonstrating the practical utility of swarm robotics. \[[21-22](/15)\]
 
-                - Swarm Robotics and Flocking Behavior: Research on RAOI behavior policies and prey-predator tasks to enhance cooperative behavior and efficiency in robotic swarms. \[[23-25](/15)\]
+                - Swarm Robotics and Flocking Behavior: Researchers developed a RAOI (Repulsion, Attraction, Orientation, Influence) behavior policies, used it on a prey-predator task, and tried to find optimal parameters based on these simple rules. 
+                  On a another study, researchers tried to reduce the gap between reality and virtual simulations by introducing visual and olfatory cues in their experiments, studying multimodal senssing.\[[23-25](/15)\]
                 ''', mathjax=True, style={'fontSize': '1.5vw'})
             ], style={'flex': '1', 'padding': '10px'})
         ]
@@ -323,6 +323,27 @@ slides = [
         ]
     },
     {
+        "title": "Results: Velocities and Distances (Distance Modulation)",
+        "content": [
+            dcc.Markdown(r'''
+
+            ''', mathjax=True, style={'fontSize': '1.5vw'}),
+            html.Div([
+            html.Iframe(src="assets/boxplot_DM.html", width="100%", height="800px", style={'border': 'none'}),
+            ], style={'flex': '1', 'padding': '10px', 'overflow': 'hidden', 'margin': '0 auto', 'display': 'block', 'justifyContent': 'center'}),
+            dcc.Markdown(r'''
+            - Similar to ADM, the higher the sensory predators, the lower the average distance between the predator and prey swarms.
+
+            - Also, similar to ADM, the velocities of predators are higher than those of preys. and maintainng a fixed velocity.
+
+            - Yet, when there are fewer sensing predators, the average distance increases, indicating that the predator swarm struggles to keep up with the prey swarm.
+            ''', mathjax=True, style={'fontSize': '1.5vw'}),
+            html.Div([
+            html.Iframe(src="assets/speeds_DM.html", width="100%", height="800px", style={'border': 'none'})
+            ], style={'flex': '1', 'padding': '10px', 'overflow': 'hidden', 'margin': '0 auto', 'display': 'block', 'justifyContent': 'center'}),
+        ]
+    },
+    {
         "title": "Results: Velocities and Distances (Attractive Distance Modulation)",
         "content": [
             dcc.Markdown(r'''
@@ -346,28 +367,7 @@ slides = [
             html.Iframe(src="assets/speeds_ADM.html", width="100%", height="800px", style={'border': 'none', 'overflow': 'hidden'}),
             ], style={'flex': '1', 'padding': '10px', 'overflow': 'hidden', 'margin': '0 auto', 'display': 'block', 'justifyContent': 'center'}),
         ]
-    },
-    {
-        "title": "Results: Velocities and Distances (Distance Modulation)",
-        "content": [
-            dcc.Markdown(r'''
-
-            ''', mathjax=True, style={'fontSize': '1.5vw'}),
-            html.Div([
-            html.Iframe(src="assets/boxplot_DM.html", width="100%", height="800px", style={'border': 'none'}),
-            ], style={'flex': '1', 'padding': '10px', 'overflow': 'hidden', 'margin': '0 auto', 'display': 'block', 'justifyContent': 'center'}),
-            dcc.Markdown(r'''
-            - Similar to ADM, the higher the sensory predators, the lower the average distance between the predator and prey swarms.
-
-            - Also, similar to ADM, the velocities of predators are higher than those of preys. and maintainng a fixed velocity.
-
-            - Yet, when there are fewer sensing predators, the average distance increases, indicating that the predator swarm struggles to keep up with the prey swarm.
-            ''', mathjax=True, style={'fontSize': '1.5vw'}),
-            html.Div([
-            html.Iframe(src="assets/speeds_DM.html", width="100%", height="800px", style={'border': 'none'})
-            ], style={'flex': '1', 'padding': '10px', 'overflow': 'hidden', 'margin': '0 auto', 'display': 'block', 'justifyContent': 'center'}),
-        ]
-    },
+    },    
 
     {
         "title": "Discussion",
@@ -777,8 +777,8 @@ def update_simulation(start_clicks, stop_clicks, restart_clicks, n_intervals,
             predator_sensor_range = predator_sensor_range,
             sigma_i_pred_non_sensing = 0.75, 
             sigma_i_predator = 0.7,
-            sigma_i_pred_non_sensing_DM = 1.4,
-            sigma_i_pred_DM = 1.7,
+            sigma_i_pred_non_sensing_DM = 1.7,
+            sigma_i_pred_DM = 1.4,
             sigma_i_prey = 0.7,
             epsilon = 12.0,
             epsilon_prey = 12.0, 
@@ -816,8 +816,8 @@ def update_simulation(start_clicks, stop_clicks, restart_clicks, n_intervals,
             predator_sensor_range = predator_sensor_range,
             sigma_i_pred_non_sensing = 0.75, 
             sigma_i_predator = 0.7,
-            sigma_i_pred_non_sensing_DM = 1.4,
-            sigma_i_pred_DM = 1.7,
+            sigma_i_pred_non_sensing_DM = 1.7,
+            sigma_i_pred_DM = 1.4,
             sigma_i_prey = 0.7,
             epsilon = 12.0,
             epsilon_prey = 12.0, 
@@ -881,7 +881,7 @@ def create_figure(preys, predators, current_step=0):
     max_distance = np.max(np.linalg.norm(all_agents - [center_x, center_y], axis=1))
 
     # Define the plot range (make it slightly larger than max_distance for padding)
-    plot_range = max_distance * 2.5
+    plot_range = max_distance * 1.5
 
     fig = go.Figure()
 

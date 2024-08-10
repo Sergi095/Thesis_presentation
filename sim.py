@@ -7,11 +7,11 @@ class PredatorPreySimulation:
                 N = 10, 
                 N_preys = 10, 
                 predator_sensor_range = 3,
-                sigma_i_pred_non_sensing = 1.0, 
-                sigma_i_predator = 1.0,
-                sigma_i_pred_non_sensing_DM = 1.0,
-                sigma_i_pred_DM = 1.0,
-                sigma_i_prey = 1.0,
+                sigma_i_pred_non_sensing = 0.75, 
+                sigma_i_predator = 0.7,
+                sigma_i_pred_non_sensing_DM = 1.7,
+                sigma_i_pred_DM = 1.4,
+                sigma_i_prey = 0.7,
                 epsilon = 12.0,
                 epsilon_prey = 12.0, 
                 Dp = 4.0, 
@@ -110,7 +110,7 @@ class PredatorPreySimulation:
         prey_spacing_x = 0.5
         prey_spacing_y = 0.5
 
-        min_distance = (np.sqrt(self.N_preys) * self.sigma_i_prey * prey_spacing_x) + self.sensor_range/1.5 if self.N_preys >= 100 else (np.sqrt(self.N_preys) * self.sigma_i_prey * prey_spacing_x) + self.sensor_range/1.5
+        min_distance = (np.sqrt(self.N_preys) * self.sigma_i_prey * prey_spacing_x) + self.sensor_range/10 if self.N_preys >= 100 else (np.sqrt(self.N_preys) * self.sigma_i_prey * prey_spacing_x) + self.sensor_range/1.5
         
         agent_idx = 0
         for i in range(grid_size_agents):
@@ -223,8 +223,12 @@ class PredatorPreySimulation:
         self.sigma_i = 1.0
         self.sigma_i = np.tile(self.sigma_i, (N,N))
         no_distance_sensor_agents = agents[:, 3] == 0
-        self.sigma_i[no_distance_sensor_agents] *= self.sigma_i_pred_non_sensing
-        self.sigma_i[~no_distance_sensor_agents] *= self.sigma_i_predator
+        if self.pdm:
+            self.sigma_i[no_distance_sensor_agents]  *= self.sigma_i_pred_non_sensing_DM
+            self.sigma_i[~no_distance_sensor_agents] *= self.sigma_i_pred_DM
+        else:
+            self.sigma_i[no_distance_sensor_agents]  *= self.sigma_i_pred_non_sensing
+            self.sigma_i[~no_distance_sensor_agents] *= self.sigma_i_predator
         
         # Reshape distance_swarm_prey to match self.sigma_i
         # distance_swarm_prey = distance_swarm_prey.reshape(-1, 1)
@@ -235,7 +239,7 @@ class PredatorPreySimulation:
         
         # Add the distance effect to the diagonal of self.sigma_i
         # np.fill_diagonal(self.sigma_i, np.diag(self.sigma_i) + distance_swarm_prey.diagonal())
-        self.sigma_i += 3*(distance_swarm_prey) * np.diag(self.sigma_i) #+ 1.e-6
+        self.sigma_i += 1*(distance_swarm_prey) * np.diag(self.sigma_i) #+ 1.e-6
 
         dist_matrix = self.get_distance_matrix(agents)
         phi = self.get_angle_matrix(agents)
