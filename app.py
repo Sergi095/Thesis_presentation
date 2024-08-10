@@ -56,13 +56,13 @@ slides = [
             html.Div([
                 dcc.Markdown(r'''
                 ### Outline
-                - Introduction
-                - Related Work
-                - Methods
-                - Experimental Setup
-                - Results
-                - Discussion
-                - Conclusions
+                - [Introduction](/1)
+                - [Related Work](/2)
+                - [Methods](/3)
+                - [Experimental Setup](/6)
+                - [Results](/7)
+                - [Discussion](/10)
+                - [Conclusions](/12)
                 ''', mathjax=True, style={'fontSize': '1.2vw'}),
             ], style={'flex': '1', 'padding': '10px'}),
             html.Div([
