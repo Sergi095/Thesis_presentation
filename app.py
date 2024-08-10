@@ -672,7 +672,7 @@ def render_simulation(pathname):
                     dcc.Checklist(id='pdm', options=[{'label': 'P-ADM', 'value': 'P-ADM'}], value=['P-ADM'], style={'marginBottom': '5px'}),
                     dcc.Checklist(id='pdm-prey', options=[{'label': 'P-ADM Prey', 'value': 'PDM_PREY'}], value=[], style={'marginBottom': '5px'}),
                     html.Label('Steps', style={'display': 'block', 'marginBottom': '5px'}),
-                    dcc.Input(id='steps', type='number', value=5000, min=50, max=5000, step=50, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    dcc.Input(id='steps', type='number', value=5000, min=1000, max=10000, step=50, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     html.Div([
                         html.Button('Start', id='start-button', n_clicks=0, style={'padding': '5px 10px', 'marginRight': '5px', 'cursor': 'pointer'}),
                         html.Button('Stop', id='stop-button', n_clicks=0, style={'padding': '5px 10px', 'marginRight': '5px', 'cursor': 'pointer'}),
