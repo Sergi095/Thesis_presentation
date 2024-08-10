@@ -669,8 +669,8 @@ def render_simulation(pathname):
                     dcc.Input(id='predator-sensor-range', type='number', value=3.5, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     html.Label('Prey Sensing Range', style={'display': 'block', 'marginBottom': '5px'}),
                     dcc.Input(id='prey-sensing-range', type='number', value=3.5, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
-                    html.Label('% of No Sensor Predators', style={'display': 'block', 'marginBottom': '5px'}),
-                    dcc.Input(id='no-sensor', type='number', value=0,min=0, max=1, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    html.Label('% of Sensing Predators', style={'display': 'block', 'marginBottom': '5px'}),
+                    dcc.Input(id='no-sensor', type='number', value=1,min=0, max=1, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     dcc.Checklist(id='pdm', options=[{'label': 'P-ADM', 'value': 'P-ADM'}], value=['P-ADM'], style={'marginBottom': '5px'}),
                     dcc.Checklist(id='pdm-prey', options=[{'label': 'P-ADM Prey', 'value': 'PDM_PREY'}], value=[], style={'marginBottom': '5px'}),
                     html.Label('Steps', style={'display': 'block', 'marginBottom': '5px'}),
@@ -685,10 +685,11 @@ def render_simulation(pathname):
                     dcc.Graph(id='live-graph', style={'height': '90%', 'width': '80%', 'margin': '0 auto'}),
                     html.Div(id='simulation-status', style={'textAlign': 'left', 'marginTop': '10px', 'fontSize': '1.2vw'}),
                 ], style={'width': '70%', 'padding': '10px', 'boxSizing': 'border-box', 'overflow': 'auto', 'scrollbarWidth': 'none'}),
-                dcc.Interval(id='interval-component', interval=400, n_intervals=100), # local host 100 ms
+                dcc.Interval(id='interval-component', interval=400, n_intervals=100),
             ], style={'display': 'flex', 'flexDirection': 'row', 'fontSize': '1.vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbarWidth': 'none'})
         ]
     return []
+
 
 
 
