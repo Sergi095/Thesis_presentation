@@ -670,7 +670,7 @@ def render_simulation(pathname):
                     html.Label('Prey Sensing Range', style={'display': 'block', 'marginBottom': '5px'}),
                     dcc.Input(id='prey-sensing-range', type='number', value=3.5, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     html.Label('% of Sensing Predators', style={'display': 'block', 'marginBottom': '5px'}),
-                    dcc.Input(id='no-sensor', type='number', value=1,min=0, max=1, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
+                    dcc.Input(id='no-sensor', type='number', value=100,min=0, max=100, style={'width': '80%', 'padding': '5px', 'marginBottom': '5px'}),
                     dcc.Checklist(id='pdm', options=[{'label': 'P-ADM', 'value': 'P-ADM'}], value=['P-ADM'], style={'marginBottom': '5px'}),
                     dcc.Checklist(id='pdm-prey', options=[{'label': 'P-ADM Prey', 'value': 'PDM_PREY'}], value=[], style={'marginBottom': '5px'}),
                     html.Label('Steps', style={'display': 'block', 'marginBottom': '5px'}),
@@ -685,7 +685,7 @@ def render_simulation(pathname):
                     dcc.Graph(id='live-graph', style={'height': '90%', 'width': '80%', 'margin': '0 auto'}),
                     html.Div(id='simulation-status', style={'textAlign': 'left', 'marginTop': '10px', 'fontSize': '1.2vw'}),
                 ], style={'width': '70%', 'padding': '10px', 'boxSizing': 'border-box', 'overflow': 'auto', 'scrollbarWidth': 'none'}),
-                dcc.Interval(id='interval-component', interval=400, n_intervals=100),
+                dcc.Interval(id='interval-component', interval=100, n_intervals=100), # localhost 100, pythonanywhere 400
             ], style={'display': 'flex', 'flexDirection': 'row', 'fontSize': '1.vw', 'maxHeight': '47vh', 'overflow': 'auto', 'scrollbarWidth': 'none'})
         ]
     return []
@@ -724,6 +724,8 @@ def update_simulation(start_clicks,
                       pdm_prey, 
                       steps):
     global simulation, predators, preys, current_step
+
+    no_sensor = round(no_sensor / 100, 2) # Convert percentage to decimal
 
     ctx = dash.callback_context
     if not ctx.triggered:
