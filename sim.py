@@ -189,9 +189,9 @@ class PredatorPreySimulation:
     def p_vector_prey(self, preys):
         N = len(preys)
 
-        self.sigma_i = 1.0
-        self.sigma_i = np.tile(self.sigma_i, (N,N))
-        self.sigma_i *= self.sigma_i_prey
+        self.sigma_i_preys = 1.0
+        self.sigma_i_preys = np.tile(self.sigma_i_preys, (N,N))
+        self.sigma_i_preys *= self.sigma_i_prey
 
         dist_matrix = self.get_distance_matrix(preys)
         phi = self.get_angle_matrix(preys)
@@ -200,7 +200,7 @@ class PredatorPreySimulation:
         distance = dist_matrix[mask]
         # distance += 1e-10
         phi_im = phi[mask]
-        sigma_i_masked = self.sigma_i[mask]
+        sigma_i_masked = self.sigma_i_preys[mask]
 
         if self.pdm_prey:
             px = -((self.epsilon_prey / 1.0) * ((sigma_i_masked / distance) - np.sqrt(sigma_i_masked / distance))) * np.cos(phi_im)
