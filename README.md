@@ -42,7 +42,9 @@ To run the app just do:
 (myenv) $ python app.py
 ```
 
-This will create a running app on localhost: http://127.0.0.1:8050/
+This will create a running app on localhost: http://127.0.0.1:8050/13
 
-Then you can play with the simulation 😃.
+Then you can play with the simulation 😃
+
+![presentation at localhost](assets/presentation-playground.gif)
 
