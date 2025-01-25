@@ -695,34 +695,18 @@ def render_simulation(pathname):
 
 
 ##################################################################################################################################################################################################
-# @app.callback(
-#     [Output('live-graph', 'figure'), Output('interval-component', 'disabled'), Output('simulation-status', 'children')],
-#     [Input('start-button', 'n_clicks'),
-#      Input('stop-button', 'n_clicks'),
-#      Input('restart-button', 'n_clicks'),
-#      Input('interval-component', 'n_intervals')],
-#     [State('n-predators', 'value'),
-#      State('n-preys', 'value'),
-#      State('predator-sensor-range', 'value'),
-#      State('prey-sensing-range', 'value'),
-#      State('no-sensor', 'value'),
-#      State('pdm', 'value'),
-#      State('pdm-prey', 'value'),
-#      State('steps', 'value')]
-# )
-
 @app.callback(
     [Output('live-graph', 'figure'), 
      Output('interval-component', 'disabled'), 
      Output('simulation-status', 'data'),
      Output('simulation-div', 'children'),
+     # Control states of all inputs
      Output('n-predators', 'disabled'),
      Output('n-preys', 'disabled'),
      Output('predator-sensor-range', 'disabled'),
      Output('prey-sensing-range', 'disabled'),
      Output('no-sensor', 'disabled'),
      Output('pdm', 'disabled'),
-    #  Output('pdm-prey', 'disabled'),
      Output('steps', 'disabled')],
     [Input('start-button', 'n_clicks'),
      Input('stop-button', 'n_clicks'),
@@ -734,211 +718,183 @@ def render_simulation(pathname):
      State('prey-sensing-range', 'value'),
      State('no-sensor', 'value'),
      State('pdm', 'value'),
-    #  State('pdm-prey', 'value'),
      State('steps', 'value'),
      State('simulation-status', 'data')]
 )
-# def update_simulation(start_clicks, stop_clicks, restart_clicks, n_intervals, 
-#                       n_predators, n_preys, predator_sensor_range, prey_sensing_range, 
-#                       no_sensor, pdm, pdm_prey, steps, sim_status):
-
 def update_simulation(start_clicks, stop_clicks, restart_clicks, n_intervals, 
-                      n_predators, n_preys, predator_sensor_range, prey_sensing_range, 
-                      no_sensor, pdm, steps, sim_status):
-    # print(sim_status)
-
-
+                     n_predators, n_preys, predator_sensor_range, prey_sensing_range, 
+                     no_sensor, pdm, steps, sim_status):
     global simulation, predators, preys, current_step
-
-    no_sensor = round(no_sensor / 100, 2) # Convert percentage to decimal
-
+    
+    no_sensor = round(no_sensor / 100, 2)
+    
     ctx = dash.callback_context
     if not ctx.triggered:
-        return dash.no_update, True, 'idle', 'Click Start to begin simulation', False, False, False, False, False, False, False#, False
+        return [dash.no_update, True, 'idle', 'Click Start to begin simulation'] + [False] * 7
 
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    # print(button_id)
-
-    if button_id=='start-button' and sim_status != 'running' and start_clicks>0 and sim_status != 'running':
+    
+    if button_id == 'start-button' and sim_status != 'running' and start_clicks > 0:
         current_step = 0
         simulation = PredatorPreySimulation(
-            boundaries = boundaries, 
-            N = n_predators, 
-            N_preys = n_preys, 
-            predator_sensor_range = predator_sensor_range,
-            sigma_i_pred_non_sensing = 0.75, 
-            sigma_i_predator = 0.7,
-            sigma_i_pred_non_sensing_DM = 1.7,
-            sigma_i_pred_DM = 1.4,
-            sigma_i_prey = 0.7,
-            epsilon = 12.0,
-            epsilon_prey = 12.0, 
-            Dp = 4.0, 
-            Dp_prey = 3.5, 
-            Dp_pm = 3.5,
-            Dr = 0.5, 
-            L0 = 0.5, 
-            k_rep = 2.0, 
-            alpha = 1.0, 
-            beta = 0.0, 
-            gamma = 0.0,
-            alpha_prey = 1.0, 
-            kappa = 0.0, 
-            Uc = 0.05, 
-            Umax = 0.15, 
-            omegamax = np.pi/3, 
-            K1 = 0.5, 
-            K2 = 0.05,
-            no_sensor = no_sensor,
-            pdm = pdm, 
-            pdm_prey = False,# pdm_prey,
-            prey_sensing_range = prey_sensing_range,
+            boundaries=boundaries,
+            N=n_predators,
+            N_preys=n_preys,
+            predator_sensor_range=predator_sensor_range,
+            sigma_i_pred_non_sensing=0.75,
+            sigma_i_predator=0.7,
+            sigma_i_pred_non_sensing_DM=1.7,
+            sigma_i_pred_DM=1.4,
+            sigma_i_prey=0.7,
+            epsilon=12.0,
+            epsilon_prey=12.0,
+            Dp=4.0,
+            Dp_prey=3.5,
+            Dp_pm=3.5,
+            Dr=0.5,
+            L0=0.5,
+            k_rep=2.0,
+            alpha=1.0,
+            beta=0.0,
+            gamma=0.0,
+            alpha_prey=1.0,
+            kappa=0.0,
+            Uc=0.05,
+            Umax=0.15,
+            omegamax=np.pi/3,
+            K1=0.5,
+            K2=0.05,
+            no_sensor=no_sensor,
+            pdm='P-ADM' in pdm,
+            prey_sensing_range=prey_sensing_range
         )
-
+        
         predators, preys = simulation.generate_agents_and_preys()
-        return create_figure(preys, predators), False, 'running', 'Simulation started', True, True, True, True, True, True, True#, True
+        return [create_figure(preys, predators), False, 'running', 'Simulation started'] + [True] * 7
     
     if button_id == 'restart-button':
         current_step = 0
         simulation = PredatorPreySimulation(
-            boundaries = boundaries, 
-            N = n_predators, 
-            N_preys = n_preys, 
-            predator_sensor_range = predator_sensor_range,
-            sigma_i_pred_non_sensing = 0.75, 
-            sigma_i_predator = 0.7,
-            sigma_i_pred_non_sensing_DM = 1.7,
-            sigma_i_pred_DM = 1.4,
-            sigma_i_prey = 0.7,
-            epsilon = 12.0,
-            epsilon_prey = 12.0, 
-            Dp = 4.0, 
-            Dp_prey = 3.5, 
-            Dp_pm = 3.5,
-            Dr = 0.5, 
-            L0 = 0.5, 
-            k_rep = 2.0, 
-            alpha = 1.0, 
-            beta = 0.0, 
-            gamma = 0.0,
-            alpha_prey = 1.0, 
-            kappa = 0.0, 
-            Uc = 0.05, 
-            Umax = 0.15, 
-            omegamax = np.pi/3, 
-            K1 = 0.5, 
-            K2 = 0.05,
-            no_sensor = no_sensor,
-            pdm = pdm, 
-            pdm_prey = False,# pdm_prey,
-            prey_sensing_range = prey_sensing_range,
+            boundaries=boundaries,
+            N=n_predators,
+            N_preys=n_preys,
+            predator_sensor_range=predator_sensor_range,
+            sigma_i_pred_non_sensing=0.75,
+            sigma_i_predator=0.7,
+            sigma_i_pred_non_sensing_DM=1.7,
+            sigma_i_pred_DM=1.4,
+            sigma_i_prey=0.7,
+            epsilon=12.0,
+            epsilon_prey=12.0,
+            Dp=4.0,
+            Dp_prey=3.5,
+            Dp_pm=3.5,
+            Dr=0.5,
+            L0=0.5,
+            k_rep=2.0,
+            alpha=1.0,
+            beta=0.0,
+            gamma=0.0,
+            alpha_prey=1.0,
+            kappa=0.0,
+            Uc=0.05,
+            Umax=0.15,
+            omegamax=np.pi/3,
+            K1=0.5,
+            K2=0.05,
+            no_sensor=no_sensor,
+            pdm='P-ADM' in pdm,
+            prey_sensing_range=prey_sensing_range
         )
-
+        
         predators, preys = simulation.generate_agents_and_preys()
-        return create_figure(preys, predators), False, 'running', 'Simulation restarted', True, True, True, True, True, True, True#, True
+        return [create_figure(preys, predators), False, 'running', 'Simulation restarted'] + [True] * 7
 
     if button_id == 'stop-button':
-        # print("Stop button clicked")
         current_step = 0
         simulation = None
-        return dash.no_update, True, 'stopped', 'Simulation stopped', False, False, False, False, False, False, False#, False
+        return [dash.no_update, True, 'stopped', 'Simulation stopped'] + [False] * 7
 
-    if button_id == 'interval-component':
-        if simulation is not None:
-            while current_step < steps:
-                preys_, predators_ = simulation.simulate(preys, predators)
-                current_step += 1
-                # print(current_step)
-                if current_step % 50 == 0 or current_step == steps: 
-                    return create_figure(preys_, predators_, current_step), False, 'running', f'Simulation running, step: {current_step}', True, True, True, True, True, True, True#, True
-                if current_step + 1 == steps:
-                    current_step = 0
-                    simulation = None
-                    # print("Simulation ended")
-                    return dash.no_update, True, 'stopped', 'Simulation ended', False, False, False, False, False, False, False#, False
-    return dash.no_update, sim_status != 'running', 'idle', 'Click Start to begin simulation', False, False, False, False, False, False, False#, False
+    if button_id == 'interval-component' and simulation is not None:
+        while current_step < steps:
+            preys_, predators_ = simulation.simulate(preys, predators)
+            current_step += 1
+            
+            if current_step % 50 == 0 or current_step == steps:
+                return [create_figure(preys_, predators_, current_step), False, 'running', 
+                        f'Simulation running, step: {current_step}'] + [True] * 7
+                        
+            if current_step + 1 == steps:
+                current_step = 0
+                simulation = None
+                return [dash.no_update, True, 'stopped', 'Simulation ended'] + [False] * 7
+                
+    return [dash.no_update, sim_status != 'running', sim_status, 
+            'Click Start to begin simulation'] + [False] * 7
 
 
 def create_figure(preys, predators, current_step=0):
-    # Calculate the centers of mass for preys and predators
-    prey_center = np.mean(preys[:, :2], axis=0)
+    # Only plot active prey 
+    active_prey_mask = preys[:, -1] != -1  # Add a column to mark captured prey
+    active_preys = preys[active_prey_mask]
+    
+    prey_center = np.mean(active_preys[:, :2], axis=0) if len(active_preys) > 0 else np.zeros(2)
     predator_center = np.mean(predators[:, :2], axis=0)
-
-    # Calculate the overall center as the midpoint between prey and predator centers
     center_x, center_y = (prey_center + predator_center) / 2
 
-    # Calculate the maximum distance from the center to any agent
-    all_agents = np.vstack((preys[:, :2], predators[:, :2]))
+    all_agents = np.vstack((active_preys[:, :2], predators[:, :2])) if len(active_preys) > 0 else predators[:, :2]
     max_distance = np.max(np.linalg.norm(all_agents - [center_x, center_y], axis=1))
-
-    # Define the plot range (make it slightly larger than max_distance for padding)
     plot_range = max_distance * 1.5
 
     fig = go.Figure()
 
-    # Function to calculate end points of lines
     def calculate_end_points(agents, line_length=0.5):
         x_start, y_start = agents[:, 0], agents[:, 1]
         x_end = x_start + line_length * np.cos(agents[:, 2])
         y_end = y_start + line_length * np.sin(agents[:, 2])
         return x_start, y_start, x_end, y_end
 
-    # Add preys to the figure
-    x_start, y_start, x_end, y_end = calculate_end_points(preys)
-    fig.add_trace(go.Scatter(
-        x=preys[:, 0], y=preys[:, 1],
-        mode='markers',
-        marker=dict(symbol='circle', size=8, color='blue'),
-        showlegend=True,
-        name='Preys'
-    ))
-    for i in range(len(preys)):
+    # Plot active prey
+    if len(active_preys) > 0:
+        x_start, y_start, x_end, y_end = calculate_end_points(active_preys)
         fig.add_trace(go.Scatter(
-            x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
-            mode='lines',
-            line=dict(color='blue', width=2),
-            showlegend=False
+            x=active_preys[:, 0], y=active_preys[:, 1],
+            mode='markers',
+            marker=dict(symbol='circle', size=8, color='blue'),
+            showlegend=True,
+            name=f'Prey ({len(active_preys)} remaining)'
         ))
+        for i in range(len(active_preys)):
+            fig.add_trace(go.Scatter(
+                x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
+                mode='lines',
+                line=dict(color='blue', width=2),
+                showlegend=False
+            ))
 
-    # Add predators to the figure
+    # Plot predators
     predators_with_sensors = predators[predators[:, 3] == 1]
     predators_without_sensors = predators[predators[:, 3] == 0]
 
-    # Predators with sensors
-    x_start, y_start, x_end, y_end = calculate_end_points(predators_with_sensors)
-    fig.add_trace(go.Scatter(
-        x=predators_with_sensors[:, 0], y=predators_with_sensors[:, 1],
-        mode='markers',
-        marker=dict(symbol='circle', size=10, color='red'),
-        showlegend=True,
-        name='Predators with Sensors'
-    ))
-    for i in range(len(predators_with_sensors)):
-        fig.add_trace(go.Scatter(
-            x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
-            mode='lines',
-            line=dict(color='red', width=2),
-            showlegend=False
-        ))
+    for pred_group, color, name in [(predators_with_sensors, 'red', 'Predators with Sensors'),
+                                  (predators_without_sensors, 'green', 'Predators without Sensors')]:
+        if len(pred_group) > 0:
+            x_start, y_start, x_end, y_end = calculate_end_points(pred_group)
+            fig.add_trace(go.Scatter(
+                x=pred_group[:, 0], y=pred_group[:, 1],
+                mode='markers',
+                marker=dict(symbol='circle', size=10, color=color),
+                showlegend=True,
+                name=name
+            ))
+            for i in range(len(pred_group)):
+                fig.add_trace(go.Scatter(
+                    x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
+                    mode='lines',
+                    line=dict(color=color, width=2),
+                    showlegend=False
+                ))
 
-    # Predators without sensors
-    x_start, y_start, x_end, y_end = calculate_end_points(predators_without_sensors)
-    fig.add_trace(go.Scatter(
-        x=predators_without_sensors[:, 0], y=predators_without_sensors[:, 1],
-        mode='markers',
-        marker=dict(symbol='circle', size=10, color='green'),
-        showlegend=True,
-        name='Predators without Sensors'
-    ))
-    for i in range(len(predators_without_sensors)):
-        fig.add_trace(go.Scatter(
-            x=[x_start[i], x_end[i]], y=[y_start[i], y_end[i]],
-            mode='lines',
-            line=dict(color='green', width=2),
-            showlegend=False
-        ))
-
-    # Update layout
     fig.update_layout(
         xaxis_range=[center_x - plot_range, center_x + plot_range],
         yaxis_range=[center_y - plot_range, center_y + plot_range],
@@ -951,9 +907,6 @@ def create_figure(preys, predators, current_step=0):
     )
 
     return fig
-
-
-
 if __name__ == '__main__':
     app.run_server(debug=True)
     #app.run_server(host='0.0.0.0', port=10000)

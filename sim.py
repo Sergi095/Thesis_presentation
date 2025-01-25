@@ -69,6 +69,29 @@ class PredatorPreySimulation:
         self.dt = 0.05
         self.error_range = 0.05
         self.pdm_prey = pdm_prey
+        # Add capture-related attributes
+        self.capture_distance = 0.1  # Distance threshold for captures
+        self.active_prey_mask = np.ones(N_preys, dtype=bool)
+
+
+    def check_captures(self, predators, preys):
+        active_mask = preys[:, -1] != -1
+        active_preys = preys[active_mask]
+        
+        if len(active_preys) == 0:
+            return preys
+            
+        distances = np.linalg.norm(
+            predators[:, np.newaxis, :2] - active_preys[np.newaxis, :, :2],
+            axis=2
+        )
+        captured = np.any(distances <= self.capture_distance, axis=0)
+        
+        if np.any(captured):
+            active_indices = np.where(active_mask)[0]
+            preys[active_indices[captured], -1] = -1
+            
+        return preys
 
     def no_sensor_agents(self, no_sensor: float, predators: np.array, preys: np.array) -> np.array:
         N = len(predators)
@@ -96,9 +119,11 @@ class PredatorPreySimulation:
         boundaryX, boundaryY = self.boundaries
         boundaries = (10, 10) if self.boundaries == [0,0] else (boundaryX, boundaryY)
         
-        agents = np.ones((self.N, 5))
-        preys = np.zeros((self.N_preys, 4))
-        
+        # agents = np.ones((self.N, 5))
+        # preys = np.zeros((self.N_preys, 4))
+        # Add status column (1 for active, -1 for captured)
+        agents = np.ones((self.N, 5))  # x, y, theta, sensor, id
+        preys = np.ones((self.N_preys, 5))  # x, y, theta, id, status        
         agents[:, 4] = np.arange(self.N)
         preys[:, 3] = np.arange(self.N_preys)
         
@@ -298,94 +323,150 @@ class PredatorPreySimulation:
 
 
     def update_agents(self, agents, vectors, is_prey=False):
+        N = len(agents)  # Use actual length instead of self.N or self.N_preys
+        force = self.alpha_prey * vectors['p'] + vectors['r'] if is_prey else self.alpha * vectors['p']
 
-        if is_prey == False:
-            # print(agents)
-            # print(len(agents))
-            force = self.alpha * vectors['p']
+        fx = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.cos(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
+        fy = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.sin(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
 
-            # project from global to local reference frame
-            fx = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.cos(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
-            fy = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.sin(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
+        fx = np.squeeze(fx)
+        fy = np.squeeze(fy)
 
-            fx = np.squeeze(fx)
-            fy = np.squeeze(fy)
+        U_i = self.K1 * fx + self.Uc
+        omega_i = self.K2 * fy
 
-            # Compute the U_i and omega_i for the agents
-            U_i = self.K1 * fx + self.Uc
-            omega_i = self.K2 * fy
+        U_i = np.clip(U_i, 0, self.Umax)
+        omega_i = np.clip(omega_i, -self.omegamax, self.omegamax)
 
-            # RULES FROM PAPER
-            U_i = np.where(U_i < 0, 0, U_i)
-            U_i = np.where(U_i > self.Umax, self.Umax, U_i)
+        error_x = np.random.uniform(-self.error_range, self.error_range, N) * self.dt
+        error_y = np.random.uniform(-self.error_range, self.error_range, N) * self.dt
 
-            omega_i = np.where(omega_i < -self.omegamax, -self.omegamax, omega_i)
-            omega_i = np.where(omega_i > self.omegamax, self.omegamax, omega_i)
+        dx = U_i * np.cos(agents[:, 2]) * self.dt + error_x
+        dy = U_i * np.sin(agents[:, 2]) * self.dt + error_y
 
-            # Update the states of the agents
-            error_x = np.random.uniform(-self.error_range, self.error_range, self.N) * self.dt
-            error_y = np.random.uniform(-self.error_range, self.error_range, self.N) * self.dt
+        agents[:, 0] += dx
+        agents[:, 1] += dy
+        agents[:, 2] += omega_i * self.dt
 
-            dx = U_i * np.cos(agents[:, 2]) * self.dt + error_x
-            dy = U_i * np.sin(agents[:, 2]) * self.dt + error_y
+        return agents
 
-            agents[:, 0] = agents[:, 0] + dx
-            agents[:, 1] = agents[:, 1] + dy
+    # def update_agents(self, agents, vectors, is_prey=False):
 
-            agents[:, 2] = agents[:, 2] + omega_i * self.dt
+    #     if is_prey == False:
+    #         # print(agents)
+    #         # print(len(agents))
+    #         force = self.alpha * vectors['p']
 
-            return agents
-        else:
-            # print('prey')
-            # print(len(agents))
-            force = self.alpha_prey * vectors['p'] + vectors['r']
+    #         # project from global to local reference frame
+    #         fx = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.cos(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
+    #         fy = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.sin(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
 
-            # project from global to local reference frame
-            fx = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.cos(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
-            fy = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.sin(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
+    #         fx = np.squeeze(fx)
+    #         fy = np.squeeze(fy)
 
-            fx = np.squeeze(fx)
-            fy = np.squeeze(fy)
+    #         # Compute the U_i and omega_i for the agents
+    #         U_i = self.K1 * fx + self.Uc
+    #         omega_i = self.K2 * fy
 
-            # Compute the U_i and omega_i for the agents
-            U_i = self.K1 * fx + self.Uc
-            omega_i = self.K2 * fy
+    #         # RULES FROM PAPER
+    #         U_i = np.where(U_i < 0, 0, U_i)
+    #         U_i = np.where(U_i > self.Umax, self.Umax, U_i)
 
-            # RULES FROM PAPER
-            U_i = np.where(U_i < 0, 0, U_i)
-            U_i = np.where(U_i > self.Umax, self.Umax, U_i)
+    #         omega_i = np.where(omega_i < -self.omegamax, -self.omegamax, omega_i)
+    #         omega_i = np.where(omega_i > self.omegamax, self.omegamax, omega_i)
 
-            omega_i = np.where(omega_i < -self.omegamax, -self.omegamax, omega_i)
-            omega_i = np.where(omega_i > self.omegamax, self.omegamax, omega_i)
+    #         # Update the states of the agents
+    #         error_x = np.random.uniform(-self.error_range, self.error_range, self.N) * self.dt
+    #         error_y = np.random.uniform(-self.error_range, self.error_range, self.N) * self.dt
 
-            # Update the states of the agents
-            error_x = np.random.uniform(-self.error_range, self.error_range, self.N_preys) * self.dt
-            error_y = np.random.uniform(-self.error_range, self.error_range, self.N_preys) * self.dt
+    #         dx = U_i * np.cos(agents[:, 2]) * self.dt + error_x
+    #         dy = U_i * np.sin(agents[:, 2]) * self.dt + error_y
 
-            dx = U_i * np.cos(agents[:, 2]) * self.dt + error_x
-            dy = U_i * np.sin(agents[:, 2]) * self.dt + error_y
+    #         agents[:, 0] = agents[:, 0] + dx
+    #         agents[:, 1] = agents[:, 1] + dy
 
-            agents[:, 0] = agents[:, 0] + dx
-            agents[:, 1] = agents[:, 1] + dy
+    #         agents[:, 2] = agents[:, 2] + omega_i * self.dt
 
-            agents[:, 2] = agents[:, 2] + omega_i * self.dt
+    #         return agents
+    #     else:
+    #         # print('prey')
+    #         # print(len(agents))
+    #         force = self.alpha_prey * vectors['p'] + vectors['r']
 
-            return agents
+    #         # project from global to local reference frame
+    #         fx = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.cos(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
+    #         fy = np.sqrt(force[:, 0, np.newaxis]**2 + force[:, 1, np.newaxis]**2) * np.sin(np.arctan2(force[:, 1,np.newaxis], force[:, 0,np.newaxis]) - agents[:, 2, np.newaxis])
+
+    #         fx = np.squeeze(fx)
+    #         fy = np.squeeze(fy)
+
+    #         # Compute the U_i and omega_i for the agents
+    #         U_i = self.K1 * fx + self.Uc
+    #         omega_i = self.K2 * fy
+
+    #         # RULES FROM PAPER
+    #         U_i = np.where(U_i < 0, 0, U_i)
+    #         U_i = np.where(U_i > self.Umax, self.Umax, U_i)
+
+    #         omega_i = np.where(omega_i < -self.omegamax, -self.omegamax, omega_i)
+    #         omega_i = np.where(omega_i > self.omegamax, self.omegamax, omega_i)
+
+    #         # Update the states of the agents
+    #         error_x = np.random.uniform(-self.error_range, self.error_range, self.N_preys) * self.dt
+    #         error_y = np.random.uniform(-self.error_range, self.error_range, self.N_preys) * self.dt
+
+    #         dx = U_i * np.cos(agents[:, 2]) * self.dt + error_x
+    #         dy = U_i * np.sin(agents[:, 2]) * self.dt + error_y
+
+    #         agents[:, 0] = agents[:, 0] + dx
+    #         agents[:, 1] = agents[:, 1] + dy
+
+    #         agents[:, 2] = agents[:, 2] + omega_i * self.dt
+
+    #         return agents
 
 
 
-    def simulate(self, preys, predators):
-        distance_swarm_prey = self.get_distance_from_swarm_preys(preys, predators)
+    # def simulate(self, preys, predators):
+    #     distance_swarm_prey = self.get_distance_from_swarm_preys(preys, predators)
 
-        prey_vectors = {
-            'r': self.repulsion_predator(preys, predators),
-            'p': self.p_vector_prey(preys)
-        }
-        predator_vectors = {
-            'p': self.p_vector(predators, distance_swarm_prey)
-        }
+    #     prey_vectors = {
+    #         'r': self.repulsion_predator(preys, predators),
+    #         'p': self.p_vector_prey(preys)
+    #     }
+    #     predator_vectors = {
+    #         'p': self.p_vector(predators, distance_swarm_prey)
+    #     }
 
         
-        updated_predators = self.update_agents(predators, predator_vectors, is_prey=False)
-        updated_preys     = self.update_agents(preys, prey_vectors, is_prey=True)
-        return updated_preys, updated_predators
+    #     updated_predators = self.update_agents(predators, predator_vectors, is_prey=False)
+    #     updated_preys     = self.update_agents(preys, prey_vectors, is_prey=True)
+    #     return updated_preys, updated_predators
+    def simulate(self, preys, predators):
+        active_mask = preys[:, -1] != -1
+        active_preys = preys[active_mask]
+        
+        if len(active_preys) > 0:
+            distance_swarm_prey = self.get_distance_from_swarm_preys(active_preys, predators)
+            
+            prey_vectors = {
+                'r': self.repulsion_predator(active_preys, predators),
+                'p': self.p_vector_prey(active_preys)
+            }
+            
+            predator_vectors = {
+                'p': self.p_vector(predators, distance_swarm_prey)
+            }
+            
+            updated_predators = self.update_agents(predators, predator_vectors, is_prey=False)
+            updated_active_preys = self.update_agents(active_preys, prey_vectors, is_prey=True)
+            
+            preys[active_mask] = updated_active_preys
+            preys = self.check_captures(updated_predators, preys)
+            
+            return preys, updated_predators
+        else:
+            predator_vectors = {'p': self.p_vector(predators, np.zeros(len(predators)))}
+            updated_predators = self.update_agents(predators, predator_vectors, is_prey=False)
+            return preys, updated_predators
+
