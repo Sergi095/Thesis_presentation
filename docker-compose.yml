@@ -1,3 +1,18 @@
+# services:
+#   app:
+#     build: .
+#     container_name: thesis_app
+#     restart: unless-stopped
+#     ports:
+#       - "8000:8000"
+#     volumes:
+#       - ./assets:/app/assets:ro
+#     environment:
+#       - PYTHONUNBUFFERED=
+
+
+
+
 services:
   app:
     build: .
@@ -9,3 +24,30 @@ services:
       - ./assets:/app/assets:ro
     environment:
       - PYTHONUNBUFFERED=1
+      - GUNICORN_CMD_ARGS=--bind 0.0.0.0:8000 --workers 8 --threads 4 --timeout 120 --keep-alive 5 --max-requests 1000 --max-requests-jitter 50 --worker-tmp-dir /dev/shm --access-logfile - --error-logfile - --log-level info
+    # Performance optimizations
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+    # Use tmpfs for temporary files (faster than disk)
+    tmpfs:
+      - /tmp:size=100M
+      - /dev/shm:size=256M
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Better logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
