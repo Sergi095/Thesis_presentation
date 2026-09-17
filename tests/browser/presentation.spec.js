@@ -6,6 +6,8 @@ test('all original slides, relative links, equations and assets work under a Pag
   page.on('response', response => { if (response.status() >= 400) failures.push(response.url()); });
   await page.goto('./#/0');
   await expect(page.locator('#slide-select option')).toHaveCount(16);
+  await page.locator('#slide-content img').first().waitFor({ state: 'visible' });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole('link', { name: 'Introduction', exact: true }).click();
   await expect(page).toHaveURL(/#\/1$/);
   await expect(page.locator('#slide-title')).toHaveText('Introduction');
