@@ -4,7 +4,7 @@ const ready=(async()=>{
   importScripts(new URL('./vendor/ammo.wasm.js',self.location.href).href);
   ammo=await self.Ammo({locateFile:name=>new URL(`./vendor/${name}`,self.location.href).href});
   core=(await WebAssembly.instantiateStreaming(fetch(new URL(__CORE_ASSET__,self.location.href)),{})).instance.exports;
-  for(const name of ['simulation_init','simulation_snapshot','simulation_snapshot_len','lab_set_pose','lab_commands','lab_commands_ptr','lab_mark_captured']) {
+  for(const name of ['simulation_init','simulation_snapshot','simulation_snapshot_len','lab_configure','lab_set_pose','lab_commands','lab_commands_ptr','lab_mark_captured']) {
     if(typeof core[name]!=='function') throw Error('The simulator files do not match. Refresh this page to load the latest version.');
   }
   postMessage({type:'ready'});

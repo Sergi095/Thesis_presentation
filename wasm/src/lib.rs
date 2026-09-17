@@ -75,6 +75,31 @@ pub struct Simulation {
     pub prey: Vec<Agent>,
     pub steps: u32,
     rng: Random,
+    lab_bounds: Option<[f64; 2]>,
+}
+
+// Same bounded-controller scaling policy as the thesis PyBullet adapter.
+// Physical geometry, epsilon, dt, unicycle gains and speed caps are exempt.
+const LAB_SCALE: f64 = 0.3;
+
+fn boundary_force(a: &Agent, bounds: [f64; 2]) -> [f64; 2] {
+    let mut force = [0., 0.];
+    // Canonical planarEnvVEC.r_vector: k_rep=2, L0=Dr=0.5.
+    for (axis, wall, direction) in [
+        (0, 0., 1.),
+        (0, bounds[0], -1.),
+        (1, 0., 1.),
+        (1, bounds[1], -1.),
+    ] {
+        let mut d = (a[axis] - wall).abs();
+        if d < 0.5 {
+            if d == 0. {
+                d = 0.5;
+            }
+            force[axis] += direction * 2. * (1. / d - 1. / 0.5) / d.powi(3);
+        }
+    }
+    force
 }
 
 fn distance(a: &Agent, b: &Agent) -> f64 {
@@ -144,6 +169,7 @@ impl Simulation {
             prey,
             steps: 0,
             rng,
+            lab_bounds: None,
         })
     }
 
@@ -172,6 +198,7 @@ impl Simulation {
             prey,
             steps: 0,
             rng: Random(seed),
+            lab_bounds: None,
         })
     }
 
@@ -218,8 +245,13 @@ impl Simulation {
                 signal[i] = 1. / (visible.iter().sum::<f64>() / visible.len() as f64);
             }
         }
-        let pred_force = proximal(&self.predators, &signal, self.config.adm, false);
-        let mut prey_force = proximal(&prey, &[], self.config.prey_adm, true);
+        let scale = if self.lab_bounds.is_some() {
+            LAB_SCALE
+        } else {
+            1.
+        };
+        let mut pred_force = proximal(&self.predators, &signal, self.config.adm, false, scale);
+        let mut prey_force = proximal(&prey, &[], self.config.prey_adm, true, scale);
         for (i, q) in prey.iter().enumerate() {
             let mut center = [0., 0.];
             let mut count = 0;
@@ -233,9 +265,20 @@ impl Simulation {
             if count > 0 {
                 let dx = q[0] - center[0] / count as f64;
                 let dy = q[1] - center[1] / count as f64;
-                let gain = 2. / (1. + (dx * dx + dy * dy).sqrt());
+                let gain = 2. * scale / (1. + (dx * dx + dy * dy).sqrt());
                 prey_force[i][0] += gain * dx;
                 prey_force[i][1] += gain * dy;
+            }
+        }
+        if let Some(bounds) = self.lab_bounds {
+            for (agents, forces) in [(&self.predators, &mut pred_force), (&prey, &mut prey_force)] {
+                for (a, f) in agents.iter().zip(forces.iter_mut()) {
+                    let r = boundary_force(a, bounds);
+                    // Explicitly enable wall repulsion: nominal gamma=1,
+                    // scaled once to 0.3, for both swarms. No target force.
+                    f[0] += LAB_SCALE * r[0];
+                    f[1] += LAB_SCALE * r[1];
+                }
             }
         }
         let next_pred = advance_agents(
@@ -243,8 +286,9 @@ impl Simulation {
             &pred_force,
             &noise.predator_x,
             &noise.predator_y,
+            scale,
         );
-        let next_prey = advance_agents(&prey, &prey_force, &noise.prey_x, &noise.prey_y);
+        let next_prey = advance_agents(&prey, &prey_force, &noise.prey_x, &noise.prey_y, scale);
         if !next_pred
             .iter()
             .chain(next_prey.iter())
@@ -290,7 +334,7 @@ impl Simulation {
     }
 }
 
-fn proximal(agents: &[Agent], signal: &[f64], adm: bool, prey: bool) -> Vec<[f64; 2]> {
+fn proximal(agents: &[Agent], signal: &[f64], adm: bool, prey: bool, scale: f64) -> Vec<[f64; 2]> {
     let n = agents.len();
     let mut force = vec![[0., 0.]; n];
     let base: Vec<f64> = agents
@@ -310,8 +354,9 @@ fn proximal(agents: &[Agent], signal: &[f64], adm: bool, prey: bool) -> Vec<[f64
                 0.7
             }
         })
+        .map(|sigma| sigma * scale)
         .collect();
-    let cutoff = if prey || adm { 3.5 } else { 4. };
+    let cutoff = (if prey || adm { 3.5 } else { 4. }) * scale;
     for i in 0..n {
         for j in 0..n {
             if i == j {
@@ -342,7 +387,13 @@ fn proximal(agents: &[Agent], signal: &[f64], adm: bool, prey: bool) -> Vec<[f64
     force
 }
 
-fn advance_agents(agents: &[Agent], forces: &[[f64; 2]], nx: &[f64], ny: &[f64]) -> Vec<Agent> {
+fn advance_agents(
+    agents: &[Agent],
+    forces: &[[f64; 2]],
+    nx: &[f64],
+    ny: &[f64],
+    scale: f64,
+) -> Vec<Agent> {
     agents
         .iter()
         .enumerate()
@@ -353,8 +404,8 @@ fn advance_agents(agents: &[Agent], forces: &[[f64; 2]], nx: &[f64], ny: &[f64])
             let u = (0.5 * mag * angle.cos() + 0.05).clamp(0., 0.15);
             let omega = (0.05 * mag * angle.sin()).clamp(-PI / 3., PI / 3.);
             let mut out = *a;
-            out[0] += u * a[2].cos() * DT + nx[i] * DT;
-            out[1] += u * a[2].sin() * DT + ny[i] * DT;
+            out[0] += u * a[2].cos() * DT + nx[i] * scale * DT;
+            out[1] += u * a[2].sin() * DT + ny[i] * scale * DT;
             out[2] += omega * DT;
             out
         })
@@ -441,7 +492,29 @@ pub extern "C" fn simulation_snapshot_len() -> usize {
     FRAME.with(|f| f.borrow().len())
 }
 
-// The lab adapter evaluates the SAME controller at measured physical poses.
+// Enable scaled parameters once after simulation_init, never for the 2D run.
+#[no_mangle]
+pub extern "C" fn lab_configure(width: f64, length: f64) -> i32 {
+    if ![width, length].iter().all(|v| v.is_finite() && *v > 0.) {
+        return -1;
+    }
+    ENGINE.with(|engine| {
+        let mut borrow = engine.borrow_mut();
+        let Some(sim) = borrow.as_mut() else {
+            return -1;
+        };
+        if sim.lab_bounds.is_some() {
+            return -1;
+        }
+        sim.config.predator_range *= LAB_SCALE;
+        sim.config.prey_range *= LAB_SCALE;
+        sim.config.capture_distance *= LAB_SCALE;
+        sim.lab_bounds = Some([width, length]);
+        0
+    })
+}
+
+// The lab adapter evaluates the scaled controller at measured physical poses.
 // It returns setpoints; Bullet, rather than advance_agents, moves the bodies.
 #[no_mangle]
 pub extern "C" fn lab_set_pose(index: u32, x: f64, y: f64, yaw: f64) -> i32 {
@@ -524,6 +597,66 @@ pub extern "C" fn lab_commands_ptr() -> *const f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn lab_boundary_matches_thesis_field_on_each_wall_and_corner() {
+        let bounds = [4.4, 7.9];
+        // Canonical r_vector: 2*(1/.25-1/.5)/.25^3 = 256.
+        for (x, y, expected) in [
+            (0.25, 3., [256., 0.]),
+            (4.15, 3., [-256., 0.]),
+            (2., 0.25, [0., 256.]),
+            (2., 7.65, [0., -256.]),
+            (0.25, 0.25, [256., 256.]),
+            (2., 3., [0., 0.]),
+            (0.5, 0.5, [0., 0.]),
+            // Keep the thesis' exact-on-wall fallback, not a new clamp law.
+            (0., 0., [0., 0.]),
+        ] {
+            let actual = boundary_force(&[x, y, 0., 1., 0.], bounds);
+            for k in 0..2 {
+                assert!((actual[k] - expected[k]).abs() < 1e-10);
+            }
+        }
+    }
+    #[test]
+    fn lab_scales_once_and_reset_restores_original_controller() {
+        assert_eq!(simulation_init(1, 1, 3., 4., 1., 1, 0.5, 2), 0);
+        assert_eq!(lab_configure(4.4, 7.9), 0);
+        assert_eq!(lab_configure(4.4, 7.9), -1);
+        ENGINE.with(|e| {
+            let e = e.borrow();
+            let s = e.as_ref().unwrap();
+            assert!((s.config.predator_range - 0.9).abs() < 1e-15);
+            assert_eq!(s.config.prey_range, 1.2);
+            assert_eq!(s.config.capture_distance, 0.15);
+        });
+        assert_eq!(simulation_init(1, 1, 3., 4., 1., 1, 0.5, 2), 0);
+        ENGINE.with(|e| {
+            let e = e.borrow();
+            let s = e.as_ref().unwrap();
+            assert_eq!(s.config.predator_range, 3.);
+            assert!(s.lab_bounds.is_none());
+        });
+    }
+    #[test]
+    fn lab_scales_sigmas_cutoffs_noise_but_not_speed_or_turn_caps() {
+        let agents = [[2., 3., 0., 1., 0.], [2.3, 3., 0., 1., 1.]];
+        let forces = proximal(&agents, &[], false, true, LAB_SCALE);
+        let d = distance(&agents[0], &agents[1]);
+        let sigma: f64 = 0.7 * LAB_SCALE;
+        let expected = -12. * (2. * sigma.powi(4) / d.powi(5) - sigma.powi(2) / d.powi(3));
+        assert!((forces[1][0] + expected).abs() < 1e-12);
+        let far = [[2., 3., 0., 1., 0.], [3.1, 3., 0., 1., 1.]];
+        assert_eq!(
+            proximal(&far, &[], false, true, LAB_SCALE),
+            vec![[0., 0.]; 2]
+        );
+        assert_ne!(proximal(&far, &[], false, true, 1.), vec![[0., 0.]; 2]);
+        let moved = advance_agents(&agents[..1], &[[1e6, 1e6]], &[0.05], &[-0.05], LAB_SCALE);
+        assert!((moved[0][0] - (2. + 0.15 * DT + 0.015 * DT)).abs() < 1e-15);
+        assert!((moved[0][1] - (3. - 0.015 * DT)).abs() < 1e-15);
+        assert!((moved[0][2] - PI / 3. * DT).abs() < 1e-15);
+    }
     #[test]
     fn configured_sensors_and_fresh_states() {
         for fraction in [0., 0.5, 0.95, 1.] {

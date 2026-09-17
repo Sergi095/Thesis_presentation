@@ -16,8 +16,11 @@ const require=createRequire(import.meta.url);
 const A=await require('ammojs3/builds/ammo.wasm.js')({wasmBinary:fs.readFileSync('node_modules/ammojs3/builds/ammo.wasm.wasm')});
 const {assets}=JSON.parse(fs.readFileSync('dist/build.json'));
 const core=(await WebAssembly.instantiate(fs.readFileSync(`dist/${assets.core}`),{})).instance.exports;
-const config={predators:5,prey:4,range:3,model:'adm',capture:.15,seed:20,duration:120};
+const config={predators:5,prey:4,range:3,model:'adm',capture:.5,seed:20,duration:120};
 const lab=new Laboratory(A,core,config);
+assert.ok(Math.abs(lab.snapshot().effective.range-.9)<1e-15);
+assert.equal(lab.snapshot().effective.capture,.15);
+assert.equal(lab.snapshot().effective.target,false);
 for(let i=0;i<2400;i++)lab.step();
 for(const a of lab.snapshot().agents.filter(a=>a.active))assert.ok(Math.abs(a.position[2]-.6)<.03,'Flight remains close to altitude setpoint');
 lab.destroy();
@@ -34,6 +37,21 @@ assert.ok(falling.state(drone).position[0]<LAB.width,'Wall collision confines ph
 falling.destroy();
 // Capture depends on observed 3D separation, not the speculative controller step.
 const capture=new Laboratory(A,core,{...config,predators:1,prey:1,capture:.5});
-const transform=capture.drones[1].body.getWorldTransform();const near=new A.btVector3(2.2,4.6,.6);transform.setOrigin(near);capture.drones[1].body.setWorldTransform(transform);A.destroy(near);
+const transform=capture.drones[1].body.getWorldTransform();const near=new A.btVector3(2.2,4.6,.6);transform.setOrigin(near);capture.drones[1].body.setWorldTransform(transform);
+capture.step();assert.equal(capture.snapshot().captured,0,'Nominal .5 capture must be scaled to .15');
+near.setValue(2.2,4.66,.6);transform.setOrigin(near);capture.drones[1].body.setWorldTransform(transform);A.destroy(near);
 capture.step();assert.equal(capture.snapshot().captured,1);assert.equal(core.simulation_snapshot_len()>0,true);capture.destroy();
+// Exercise the real WASM/Bullet adapter: both roles receive the same wall
+// field before the unicycle update, with gamma scaled exactly once.
+const bounded=new Laboratory(A,core,{...config,predators:1,prey:1,range:.1});
+for(const x of [.49,2.2]) {
+  core.lab_set_pose(0,x,3,Math.PI/2);core.lab_set_pose(1,x,4,Math.PI/2);
+  assert.equal(core.lab_commands(),0);
+  const commands=new Float64Array(core.memory.buffer,core.lab_commands_ptr(),6).slice();
+  const force=x===.49?.3*2*(1/.49-1/.5)/(.49**3):0;
+  const expectedYaw=Math.PI/2-.05*force*.05;
+  assert.ok(Math.abs(commands[2]-expectedYaw)<1e-12);
+  assert.ok(Math.abs(commands[5]-expectedYaw)<1e-12);
+}
+bounded.destroy();
 console.log(`PASS: ${fixture.samples.length} reference PID calls (max RPM error ${error}), motor wrench, altitude, gravity, floor/wall contact, and physical capture.`);

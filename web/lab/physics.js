@@ -1,5 +1,5 @@
 import { DRONE, FlightControl, rotation, rotate, euler } from './flight-control.js';
-export const LAB = Object.freeze({ width: 4.4, length: 7.9, height: 2.2, altitude: .6, physicsHz: 240, swarmHz: 20 });
+export const LAB = Object.freeze({ width: 4.4, length: 7.9, height: 2.2, altitude: .6, physicsHz: 240, swarmHz: 20, parameterScale: .3 });
 
 export class Laboratory {
   constructor(Ammo, core, config) {
@@ -16,11 +16,14 @@ export class Laboratory {
     for(const x of [-.05,LAB.width+.05]) box([.05,LAB.length/2,LAB.height/2],[x,LAB.length/2,LAB.height/2]);
     for(const y of [-.05,LAB.length+.05]) box([LAB.width/2,.05,LAB.height/2],[LAB.width/2,y,LAB.height/2]);
     if(core.simulation_init(config.predators,config.prey,config.range,config.range,1,config.model==='adm'?1:0,config.capture,config.seed)!==0) throw Error('Invalid laboratory settings.');
+    if(core.lab_configure(LAB.width,LAB.length)!==0) throw Error('Could not configure the scaled laboratory controller.');
+    this.effective={parameterScale:LAB.parameterScale,range:config.range*LAB.parameterScale,capture:config.capture*LAB.parameterScale,boundaryGamma:LAB.parameterScale,boundaryRadius:.5,maxSpeed:.15,target:false};
     const snapshot=this.coreSnapshot();
     for(let i=0;i<config.predators+config.prey;i++) {
       const prey=i>=config.predators, j=prey?i-config.predators:i, count=prey?config.prey:config.predators;
       const side=Math.ceil(Math.sqrt(count));
-      const position=[LAB.width/2+(j%side-(side-1)/2)*.5,(prey?2.5:4.8)+(Math.floor(j/side)-(Math.ceil(count/side)-1)/2)*.5,LAB.altitude];
+      const spacing=.5*LAB.parameterScale;
+      const position=[LAB.width/2+(j%side-(side-1)/2)*spacing,(prey?2.5:4.8)+(Math.floor(j/side)-(Math.ceil(count/side)-1)/2)*spacing,LAB.altitude];
       const yaw=snapshot[8+i*5+2], q=[0,0,Math.sin(yaw/2),Math.cos(yaw/2)];
       const shape=own(new A.btCylinderShapeZ(own(new A.btVector3(DRONE.radius,DRONE.radius,DRONE.height/2))));shape.setMargin(.001);
       const body=this.body(shape,DRONE.mass,position,q,DRONE.inertia);
@@ -70,7 +73,7 @@ export class Laboratory {
     const predators=this.drones.filter(d=>!d.prey).map(d=>this.state(d).position);
     for(const [i,d] of this.drones.entries()) if(d.prey&&d.active) {
       const pos=this.state(d).position;
-      if(predators.some(p=>Math.hypot(...p.map((v,k)=>v-pos[k]))<=this.config.capture)) {
+      if(predators.some(p=>Math.hypot(...p.map((v,k)=>v-pos[k]))<=this.effective.capture)) {
         d.active=false;this.world.removeRigidBody(d.body);this.core.lab_mark_captured(i-this.config.predators);
       }
     }
@@ -78,7 +81,7 @@ export class Laboratory {
   snapshot() {
     const agents=this.drones.map(d=>({...this.state(d),prey:d.prey,active:d.active,rpm:d.rpm}));
     if(agents.some(a=>![...a.position,...a.quaternion,...a.velocity].every(Number.isFinite))) throw Error('The physics simulation reached an invalid state.');
-    return {time:this.ticks/LAB.physicsHz,agents,captured:agents.filter(a=>a.prey&&!a.active).length,config:this.config};
+    return {time:this.ticks/LAB.physicsHz,agents,captured:agents.filter(a=>a.prey&&!a.active).length,config:this.config,effective:this.effective};
   }
   destroy() {
     for(const body of this.bodies) this.world.removeRigidBody(body);
