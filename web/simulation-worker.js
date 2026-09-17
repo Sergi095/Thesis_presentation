@@ -1,6 +1,6 @@
 let core, config, running = false, timer, pace = 10;
 const ready = (async () => {
-  const result = await WebAssembly.instantiateStreaming(fetch(new URL('./core.wasm', import.meta.url)), {});
+  const result = await WebAssembly.instantiateStreaming(fetch(new URL(__CORE_ASSET__, import.meta.url)), {});
   core = result.instance.exports;
   postMessage({ type: 'ready' });
 })();

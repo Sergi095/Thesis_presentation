@@ -65,6 +65,10 @@ It contains synthetic unit-test states only, not experimental results.
 
 Browser tests exercise the actual worker, WebGL view, pause/resume, export,
 duration limit, mobile layout, and switching back to the original simulator.
+Runtime scripts, workers and the swarm WASM module have content-based filenames
+so a newer worker cannot reuse a cached pre-laboratory `core.wasm`. Browser
+tests inject obsolete files at the old URLs and verify they are never loaded.
+The laboratory also checks required module exports before enabling Run.
 The original Python/Rust trajectory checks and native/WASM checks still run.
 These checks validate components and coupling; they do not establish matching
 long-run trajectories or experimental outcome distributions across engines.

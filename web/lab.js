@@ -18,7 +18,7 @@ export function createLaboratory(root) {
   const $=id=>root.querySelector(`#${id}`), form=$('lab-controls');
   let view, latest, config, state='loading', ready=false;
   try{view=laboratoryView($('lab-scene'));}catch(error){$('lab-error').hidden=false;$('lab-error').textContent=`Could not create the 3D view: ${error.message}`;return {pause(){},show(){}};}
-  const worker=new Worker(new URL('./lab-worker.js',import.meta.url));
+  const worker=new Worker(new URL(__LAB_WORKER_ASSET__,import.meta.url));
   function status(next){state=next;$('lab-parameters').disabled=next==='running'||next==='paused';$('lab-run').disabled=!ready||next==='running';$('lab-run').textContent=!ready?'Loading simulator…':next==='paused'?'Resume':next==='complete'?'Run again':'Run';$('lab-pause').disabled=next!=='running';$('lab-reset').disabled=!ready;$('lab-export').disabled=!latest;
     $('lab-status').textContent=({ready:'Ready. Press Run to begin.',running:'Running.',paused:'Paused. Resume to continue.',complete:latest?.captured===config?.prey?'Finished: all prey captured.':'Finished: time limit reached.',error:'Simulation stopped.'})[next]||'Preparing simulation.';}
   function reset(run=false){$('lab-parameters').disabled=false;if(!form.reportValidity()){status(state);return;}const values=new FormData(form);config={seed:crypto.getRandomValues(new Uint32Array(1))[0],model:values.get('model')};for(const key of ['predators','prey','range','capture','duration'])config[key]=Number(values.get(key));$('lab-error').hidden=true;worker.postMessage({type:'init',config,run});}

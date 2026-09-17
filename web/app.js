@@ -132,7 +132,7 @@ function newRun(run = false) {
 }
 function ensureWorker() {
   if (worker) return;
-  worker = new Worker(new URL('./simulation-worker.js', import.meta.url), { type: 'module' });
+  worker = new Worker(new URL(__SWARM_WORKER_ASSET__, import.meta.url), { type: 'module' });
   worker.onerror = e => fail(`Simulator error: ${e.message}`);
   worker.onmessage = ({ data }) => {
     if (data.type === 'ready') { workerReady = true; worker.postMessage({ type: 'pace', value: Number($('pace').value) }); newRun(); }
@@ -202,7 +202,7 @@ $('export').onclick = () => {
 };
 
 try {
-  const response = await fetch(new URL('./slides.json', import.meta.url));
+  const response = await fetch(new URL(__SLIDES_ASSET__, import.meta.url));
   if (!response.ok) throw new Error(`Slide request failed (${response.status})`);
   slides = await response.json();
   slides.forEach((slide, i) => { const option = document.createElement('option'); const title = typeof slide.title === 'string' ? slide.title : 'Introduction & outline'; option.value = i; option.textContent = `${String(i).padStart(2, '0')} · ${title}`; $('slide-select').append(option); });
