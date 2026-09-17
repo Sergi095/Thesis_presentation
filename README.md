@@ -1,15 +1,15 @@
 # Predator–prey swarm presentation
 
 Interactive MSc thesis presentation by Sergio A. Gutierrez Maury. Explore the
-published DM/ADM model with a Rust/WebAssembly simulation running in your browser.
+published DM/ADM model through an interactive predator–prey simulation.
 
 [**Open the presentation**](https://sergi095.github.io/Thesis_presentation/)
 · [**Try the simulation**](https://sergi095.github.io/Thesis_presentation/#/13)
 · [Deployment](https://github.com/Sergi095/Thesis_presentation/actions/workflows/pages.yml)
 
-![The browser presentation and interactive swarm simulator](docs/presentation-preview.jpg)
+![The presentation and interactive swarm simulator](docs/presentation-preview.jpg)
 
-## Local development
+## Development
 
 Use Node.js 22.12 or newer and Rust (CI uses 1.94.1).
 

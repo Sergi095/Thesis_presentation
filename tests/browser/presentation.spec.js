@@ -36,7 +36,7 @@ test('WASM runs locally, pauses, resumes, exports, resets and obeys the step lim
   await page.locator('input[name=prey]').fill('7');
   await page.locator('input[name=sensing]').fill('50');
   await page.locator('#run').click();
-  await expect(page.locator('#run-status')).toHaveText('Running on your device.');
+  await expect(page.locator('#run-status')).toHaveText('Running.');
   await expect(page.locator('#step-count')).not.toHaveText('Step 0 / 5000');
   await page.locator('#pause').click();
   await expect(page.locator('#run')).toHaveText('Resume');

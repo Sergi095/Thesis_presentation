@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Sergio A. Gutierrez Maury's predator–prey swarm research presentation and interactive simulator. Runs on your computer, in your browser.">
+  <meta name="description" content="Sergio A. Gutierrez Maury's predator–prey swarm research presentation and interactive simulator.">
   <title>Predator–prey dynamics · Thesis presentation</title>
   <link rel="icon" href="./assets/favicon.ico">
   <link rel="stylesheet" href="./vendor/katex.min.css">
@@ -20,7 +20,7 @@
     <div class="slide-toolbar"><label for="slide-select" class="sr-only">Choose slide</label><select id="slide-select"></select><span id="slide-counter" aria-live="polite"></span><button id="fullscreen" title="Enter fullscreen" type="button">Fullscreen ⛶</button></div>
     <article class="slide" aria-labelledby="slide-title"><h2 id="slide-title"></h2><div id="slide-content" class="slide-content"><p>Loading presentation…</p></div></article>
     <section id="playground" hidden aria-label="Simulation playground">
-      <div class="playground-heading"><div><p class="eyebrow">EXPLORE THE MODEL</p><h2>Your browser. Your simulation.</h2><p>Change the swarm, press Run, and watch collective pursuit emerge.</p></div><span class="local-badge">● Runs on your device</span></div>
+      <div class="playground-heading"><div><p class="eyebrow">EXPLORE THE MODEL</p><h2>Predator–prey simulation.</h2><p>Change the swarm, press Run, and watch collective pursuit emerge.</p></div></div>
       <div class="playground-grid">
         <form id="simulation-controls" class="controls">
           <h3>Experiment settings</h3>
@@ -34,16 +34,16 @@
           <label class="pace-label">Playback pace <output id="pace-label">10×</output><input id="pace" type="range" min="1" max="50" value="10" step="1"></label>
           <p class="hint">Pace changes execution speed, not the simulation time step.</p>
           <div class="run-buttons"><button class="primary" id="run" type="submit" disabled>Loading simulator…</button><button id="pause" type="button" disabled>Pause</button><button id="reset" type="button" disabled>New run</button></div>
-          <p id="run-status" role="status" aria-live="polite">Preparing local simulator.</p><p id="simulation-error" role="alert" hidden></p>
+          <p id="run-status" role="status" aria-live="polite">Preparing simulation.</p><p id="simulation-error" role="alert" hidden></p>
         </form>
         <div class="arena-panel"><div class="arena-toolbar"><div class="legend"><span><i class="pred-dot"></i>Predators</span><span><i class="blind-dot"></i>No sensor</span><span><i class="prey-dot"></i>Prey</span></div><button id="fit" type="button">Fit view</button></div><div class="arena-view"><canvas id="arena" aria-label="Live predator and prey positions with heading arrows"></canvas></div><div class="metrics"><div><span>Simulation time</span><strong id="sim-time">0.00 s</strong></div><div><span>Prey captured</span><strong id="captured">0 / 30</strong></div><div><span>Predator order</span><strong id="pred-order">—</strong></div><div><span>Prey order</span><strong id="prey-order">—</strong></div></div><div class="arena-footer"><span id="step-count">Step 0</span><button id="export" type="button" disabled>Download current state ↓</button></div></div>
       </div>
-      <details class="model-note"><summary>About this simulation</summary><p>This playground uses the original DM/ADM model described in this presentation. Prey use DM and respond to nearby predators. Captured prey leave the active swarm.</p><p>Each new run uses fresh randomness. Pause preserves the current run; New run draws new initial conditions. Download exports the current state and parameters, not a complete trajectory.</p><p>Heading order measures directional agreement (0–1), not whether agents move towards prey. The model includes motion noise and an unbounded arena. Small floating-point differences and a different random-number generator mean browser trajectories need not match Python trajectories for a numeric seed.</p></details>
+      <details class="model-note"><summary>About this simulation</summary><p>This playground uses the original DM/ADM model described in this presentation. Prey use DM and respond to nearby predators. Captured prey leave the active swarm.</p><p>Each new run uses fresh randomness. Pause preserves the current run; New run draws new initial conditions. Download exports the current state and parameters, not a complete trajectory.</p><p>Heading order measures directional agreement (0–1), not whether agents move towards prey. The model includes motion noise and an unbounded arena.</p></details>
     </section>
     <footer class="deck-footer"><button id="previous" type="button">← Previous</button><span>Use ← and → to navigate</span><button id="next" type="button">Next →</button></footer>
-    <p class="site-footnote">Research presentation · Interactive computation stays on your device.</p>
+    <p class="site-footnote">MSc thesis · Sergio A. Gutierrez Maury</p>
   </main>
-  <noscript>This presentation requires JavaScript to display slides and run the local simulator. <a href="./assets/presentation.pdf">Download the PDF</a>.</noscript>
+  <noscript>This presentation requires JavaScript to display slides and run the simulator. <a href="./assets/presentation.pdf">Download the PDF</a>.</noscript>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

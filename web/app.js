@@ -70,7 +70,7 @@ function showSlide() {
   document.body.classList.toggle('playground-mode', playground);
   $('playground').hidden = !playground;
   $('slide-title').replaceChildren(render(slides[index].title));
-  // Slide 13's old hosting warning is superseded by the local playground.
+  // Slide 13 contains the interactive playground.
   $('slide-content').replaceChildren(...(playground ? [] : [render(slides[index].content)]));
   $('slide-select').value = String(index);
   $('slide-counter').textContent = `${index + 1} / ${slides.length}`;
@@ -108,8 +108,8 @@ function setStatus(next) {
   $('run').textContent = !workerReady ? 'Loading simulator…' : next === 'paused' ? 'Resume' : next === 'complete' ? 'Run again' : 'Run';
   $('pause').disabled = next !== 'running'; $('reset').disabled = !workerReady;
   $('export').disabled = !latest;
-  const messages = { ready: 'Ready. Press Run to begin.', running: 'Running on your device.', paused: 'Paused. Resume to continue this run.', complete: latest?.[4] >= latest?.[3] ? 'Finished: all prey captured.' : 'Finished: step limit reached.', error: 'Simulation stopped.' };
-  const message = messages[next] || 'Preparing local simulator.';
+  const messages = { ready: 'Ready. Press Run to begin.', running: 'Running.', paused: 'Paused. Resume to continue this run.', complete: latest?.[4] >= latest?.[3] ? 'Finished: all prey captured.' : 'Finished: step limit reached.', error: 'Simulation stopped.' };
+  const message = messages[next] || 'Preparing simulation.';
   if ($('run-status').textContent !== message) $('run-status').textContent = message;
 }
 function fail(message) { $('simulation-error').hidden = false; $('simulation-error').textContent = message; setStatus('error'); }

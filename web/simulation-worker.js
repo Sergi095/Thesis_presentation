@@ -4,7 +4,7 @@ const ready = (async () => {
   core = result.instance.exports;
   postMessage({ type: 'ready' });
 })();
-ready.catch(error => postMessage({ type: 'error', message: `Could not load the local simulator: ${error.message}` }));
+ready.catch(error => postMessage({ type: 'error', message: `Could not load the simulator: ${error.message}` }));
 
 function frame() {
   const ptr = core.simulation_snapshot();
