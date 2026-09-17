@@ -87,4 +87,10 @@ test('mobile layout stays within the viewport and invalid settings do not start'
   await page.locator('#run').click();
   await expect(page.locator('#run-status')).toHaveText('Finished: all prey captured.');
   await expect(page.locator('#prey-order')).toHaveText('—');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.waitForTimeout(500);
+  const arena = await page.locator('#arena').boundingBox();
+  expect(arena.height).toBeGreaterThan(300);
+  expect(arena.height).toBeLessThan(800);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThan(1600);
 });
