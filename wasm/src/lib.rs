@@ -1,7 +1,8 @@
-//! Port of this repository's sim.py, not the newer Thesis/HPC simulator.
+//! Frozen published 2D controller, with a separate thesis laboratory force path.
 //! Keep the source-row / receiver-column force convention and NumPy broadcasts.
 use std::cell::RefCell;
 use std::f64::consts::{PI, TAU};
+mod lab;
 
 pub const DT: f64 = 0.05;
 pub type Agent = [f64; 5];
@@ -250,9 +251,36 @@ impl Simulation {
         } else {
             1.
         };
-        let mut pred_force = proximal(&self.predators, &signal, self.config.adm, false, scale);
-        let mut prey_force = proximal(&prey, &[], self.config.prey_adm, true, scale);
-        for (i, q) in prey.iter().enumerate() {
+        let (pred_force, mut prey_force) = if let Some(bounds) = self.lab_bounds {
+            (
+                lab::forces(
+                    &self.predators,
+                    &prey,
+                    self.config.predator_range,
+                    self.config.adm,
+                    false,
+                    bounds,
+                ),
+                lab::forces(
+                    &prey,
+                    &self.predators,
+                    self.config.prey_range,
+                    self.config.prey_adm,
+                    true,
+                    bounds,
+                ),
+            )
+        } else {
+            (
+                proximal(&self.predators, &signal, self.config.adm, false, scale),
+                proximal(&prey, &[], self.config.prey_adm, true, scale),
+            )
+        };
+        for (i, q) in prey
+            .iter()
+            .enumerate()
+            .filter(|_| self.lab_bounds.is_none())
+        {
             let mut center = [0., 0.];
             let mut count = 0;
             for p in &self.predators {
@@ -268,17 +296,6 @@ impl Simulation {
                 let gain = 2. * scale / (1. + (dx * dx + dy * dy).sqrt());
                 prey_force[i][0] += gain * dx;
                 prey_force[i][1] += gain * dy;
-            }
-        }
-        if let Some(bounds) = self.lab_bounds {
-            for (agents, forces) in [(&self.predators, &mut pred_force), (&prey, &mut prey_force)] {
-                for (a, f) in agents.iter().zip(forces.iter_mut()) {
-                    let r = boundary_force(a, bounds);
-                    // Explicitly enable wall repulsion: nominal gamma=1,
-                    // scaled once to 0.3, for both swarms. No target force.
-                    f[0] += LAB_SCALE * r[0];
-                    f[1] += LAB_SCALE * r[1];
-                }
             }
         }
         let next_pred = advance_agents(
@@ -564,12 +581,12 @@ pub extern "C" fn lab_commands() -> i32 {
         let Some(sim) = borrow.as_mut() else {
             return -1;
         };
-        let predators = sim.predators.clone();
-        let prey = sim.prey.clone();
+        let mut predators = sim.predators.clone();
+        let mut prey = sim.prey.clone();
         let result = sim.step();
         if result.is_ok() {
             // FRAME stores desired x,y,yaw for each physical drone. Ignore the
-            // speculative capture flags: the lab tests actual 3D separation.
+            // speculative capture flags: the lab tests measured XY separation.
             FRAME.with(|frame| {
                 *frame.borrow_mut() = sim
                     .predators
@@ -578,6 +595,15 @@ pub extern "C" fn lab_commands() -> i32 {
                     .flat_map(|a| [a[0], a[1], a[2]])
                     .collect()
             });
+            // PyBullet feeds back positions only. Keep the controller heading
+            // integrator independent of motor/attitude tracking lag.
+            for (old, next) in predators
+                .iter_mut()
+                .chain(prey.iter_mut())
+                .zip(sim.predators.iter().chain(sim.prey.iter()))
+            {
+                old[2] = next[2];
+            }
         }
         sim.predators = predators;
         sim.prey = prey;
@@ -597,6 +623,50 @@ pub extern "C" fn lab_commands_ptr() -> *const f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn lab_forces_match_current_thesis_python_reference() {
+        let fixture: serde_json::Value =
+            serde_json::from_str(include_str!("../../tests/lab-controller-fixture.json")).unwrap();
+        for sample in fixture["samples"].as_array().unwrap() {
+            let agents = |key: &str| -> Vec<Agent> {
+                sample[key]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .map(|a| std::array::from_fn(|i| a[i].as_f64().unwrap()))
+                    .collect()
+            };
+            let predators = agents("predators");
+            let prey = agents("prey");
+            for (actual, key) in [
+                (
+                    lab::forces(
+                        &predators,
+                        &prey,
+                        0.9,
+                        sample["adm"].as_bool().unwrap(),
+                        false,
+                        [4.4, 7.9],
+                    ),
+                    "predator_force",
+                ),
+                (
+                    lab::forces(&prey, &predators, 0.9, false, true, [4.4, 7.9]),
+                    "prey_force",
+                ),
+            ] {
+                for (i, f) in actual.iter().enumerate() {
+                    for (k, v) in f.iter().enumerate() {
+                        let expected = sample[key][i][k].as_f64().unwrap();
+                        assert!(
+                            (v - expected).abs() < 1e-9 + expected.abs() * 1e-11,
+                            "{key}[{i}][{k}]: {v} != {expected}"
+                        );
+                    }
+                }
+            }
+        }
+    }
     #[test]
     fn lab_boundary_matches_thesis_field_on_each_wall_and_corner() {
         let bounds = [4.4, 7.9];

@@ -18,7 +18,7 @@ export function euler(q) {
 }
 export class FlightControl {
   constructor() { this.integralPos=[0,0,0]; this.integralRot=[0,0,0]; this.lastRPY=[0,0,0]; }
-  compute(dt, position, quaternion, velocity, targetPosition, targetVelocity, targetYaw) {
+  compute(dt, position, quaternion, velocity, targetPosition, targetVelocity, targetYaw, targetYawRate=0) {
     const r=rotation(quaternion), p=[.4,.4,1.25], d=[.2,.2,.5];
     const force=position.map((v,i)=>{
       const error=targetPosition[i]-v;
@@ -33,7 +33,7 @@ export class FlightControl {
     const error=[skew(2,1),skew(0,2),skew(1,0)], rpy=euler(quaternion);
     const torque=error.map((v,i)=>{
       this.integralRot[i]=clip(this.integralRot[i]-v*dt,i===2?-1500:-1,i===2?1500:1);
-      return clip(-[70000,70000,60000][i]*v-[20000,20000,12000][i]*(rpy[i]-this.lastRPY[i])/dt+[0,0,500][i]*this.integralRot[i],-3200,3200);
+      return clip(-[70000,70000,60000][i]*v+[20000,20000,12000][i]*((i===2?targetYawRate:0)-(rpy[i]-this.lastRPY[i])/dt)+[0,0,500][i]*this.integralRot[i],-3200,3200);
     });
     this.lastRPY=rpy;
     return [[-.5,-.5,-1],[-.5,.5,1],[.5,.5,-1],[.5,-.5,1]].map(row=>.2685*clip(thrust+dot(row,torque),20000,65535)+4070.3);

@@ -47,4 +47,5 @@ screenshots stay out of Git; the preview above documents the current presentatio
 
 The [laboratory simulator](docs/LAB_MODEL.md) adds the measured 4.40 × 7.90 ×
 2.20 m room, Crazyflie dynamics, motor/PID control and Bullet collision physics
-as a second simulator. It uses the published swarm controller.
+as a second simulator. It follows the current thesis bounded PyBullet controller
+profile without a target; the original 2D simulator retains the published model.

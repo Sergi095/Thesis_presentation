@@ -1,8 +1,8 @@
 # Laboratory simulator
 
 The second simulator is available at `#/lab`, alongside the original 2D
-playground at `#/13`. The laboratory uses the published DM/ADM interactions,
-with the requested thesis bounded-controller scaling and boundary field.
+playground at `#/13`. The laboratory follows the current thesis bounded PyBullet profile,
+without a target. The original 2D playground retains its published controller.
 
 ## Physical model
 
@@ -13,7 +13,7 @@ with the requested thesis bounded-controller scaling and boundary field.
 - Collision shape: cylinder of radius 0.06 m and height 0.025 m.
 - Gravity: 9.8 m/s². Bullet simulates rigid-body motion and contacts at 240 Hz.
 - The standard DSLPIDControl position/attitude controller computes motor RPMs
-  at 240 Hz. Net body thrust and rotor moments are transformed into world forces
+  at 120 Hz, holding RPMs for two physics steps. Net body thrust and rotor moments are transformed into world forces
   and torques before each physical step.
 
 `ammojs3@0.0.11` provides Bullet through WebAssembly; Three.js displays the lab.
@@ -25,50 +25,54 @@ Front walls and ceiling are outlined rather than filled for visibility.
 
 ## Swarm coupling and initial conditions
 
-Every 0.05 s, observed physical XY positions and yaw are supplied to the existing
-Rust controller. The scaled update produces desired XY positions/headings;
-the lab converts displacement to velocity setpoints. The controller's ideal
-positions are then discarded. The flight controller tracks these held targets
-while Bullet integrates twelve physical steps. This retains the swarm's original
-noise as command noise, rather than teleporting physical drones.
+Every 0.05 s, measured physical XY positions are supplied to the Rust controller.
+The high-level heading integrator is retained between calls, independently of
+measured body yaw, exactly as in `SimulationV2PyBulletAdapter.synchronize_state`.
+Velocity commands include the scaled uniform motion noise. The PID receives the
+commanded yaw **and yaw rate**, with XY position targets reset to measured XY at
+each 120 Hz update (PyBullet velocity mode). Bullet determines the actual motion.
 
-The 2D simulator's updates are unchanged. The laboratory adapter uses separate
-exports. Capture decisions from speculative swarm updates are discarded; lab
-captures require actual three-dimensional separation within the selected radius.
-Captured prey leave the physical world and future swarm interactions.
+The laboratory controller uses the bounded test profile: DM for both roles by
+default, optional predator ADM, `rep_mode=grad_rep`, lambda=0.2 for both roles,
+with positive predator and negative prey modulation of interaction spacing.
+The nominal sigmas are 0.7 for DM and sqrt(2)×0.7 for ADM, both scaled once by
+0.3. All interaction cutoffs are 3.5×0.3. The canonical distance epsilon and
+source-row/receiver-column broadcasting are retained. There is no extra direct
+prey-repulsion force and no target force. See `wasm/src/lab.rs`.
 
-Default settings are five predators and four prey, both at 0.60 m altitude.
-Initial grids use 0.15 m spacing (0.50 × 0.30), centred across the lab at Y=4.8 m for predators
-and Y=2.5 m for prey. Headings use fresh random draws. All predators sense prey.
-The selectable maximum is twelve agents per swarm so the initial grids fit the
-lab. These are demonstration initial conditions, not a reproduction of any HPC
-experiment configuration. The swarm centres are physical placement coordinates;
-they are not scaled. At the default R=3 (effective 0.90 m), the two swarms start
-outside mutual sensing range. Pursuit depends on subsequent encounters.
+Default populations are five predators and four prey, at 0.60 m and 0.50 m
+respectively, matching `run_bounded_test.sh`. Initial positions use the thesis
+force-balanced hexagonal formations, rotated along the long lab axis and placed
+with an exact minimum cross-swarm XY gap of 0.5×effective R: **0.45 m at R=3**.
+This replaces the earlier arbitrary grids, whose centres were 2.3 m apart and
+outside sensing range. Both formations are translated together to the arena
+centre, preserving their shape and gap. Headings use fresh random draws.
+The formation coordinates are generated formula outputs, not research data.
 
-Default nominal capture distance is 0.50, producing 0.15 m after scaling,
-slightly above the 0.12 m collision diameter. The user can change it. Effective
-values below the body diameter can make contact captures
-infeasible when drones remain level at the same height. The original 2D default
-remains 0.1. Runs stop when all prey are captured or the duration is reached.
+Capture is checked on measured **XY distance at 20 Hz**, matching the planar
+PyBullet adapter. The default nominal capture setting remains 0.5 (effective
+0.15 m); the bounded thesis shell script defaults to 0.1 unless overridden.
+Captured agents leave swarm interactions and are hidden/removed in this demo;
+the thesis runner instead lands them. Runs stop when all prey are captured or
+the selected duration is reached. The original 2D simulator is unchanged.
 
 ## 0.30 parameter scale and boundary repulsion
 
 Scaling follows `scale_controller_parameters(..., 0.30, scale_speed_caps=False)`
 in the thesis `swarm/implementing_paper/simulation_v2/simulation_parameters.py`
 and its use in `swarm/3D_implementation/Prey_Predator/run.py`.
-This applies the scaling policy to the presentation's published parameters;
-it does not replace their nominal values with the newer thesis interaction model.
+The laboratory uses the nominal controller parameters of the current bounded
+PyBullet test; the original 2D presentation model remains isolated.
 
 | Parameter | Laboratory treatment |
 | --- | --- |
 | Predator/prey sensing and capture radius | Input × 0.30, once |
-| All interaction sigmas and cutoffs | Published value × 0.30 |
+| All interaction sigmas and cutoffs | Current thesis value × 0.30 |
 | Motion noise | ±0.05 becomes ±0.015 before multiplication by dt |
-| Direct prey-repulsion gain | 2 becomes 0.60 |
+| Direct prey-repulsion gain | Disabled in gradient mode |
 | Boundary weight gamma | Explicitly enabled at nominal 1; effective 0.30 |
 | Speed caps, unicycle gains, dt, angular caps, epsilon | Unchanged |
-| Dimensionless alpha / modulation multiplier | Unchanged |
+| Dimensionless alpha / lambda | alpha=1, lambda=0.2, unscaled |
 | Fixed boundary constants | k_rep=2; L0=Dr=0.50 m, unchanged |
 | Lab geometry, spawn centres, altitude, drone mass/inertia, PID | Physical values, unchanged |
 
@@ -97,6 +101,7 @@ rejects a second scale application; starting the 2D model resets scaling entirel
 - 32 sequential controller calls against recorded Python DSLPIDControl outputs.
   The fixture uses synthetic inputs and checks the PID integrator state as well
   as individual motor RPMs (maximum observed difference 1.46e-11 RPM).
+- Another 32 sequential Python PID reference calls at 120 Hz with nonzero yaw-rate commands.
 - Hover thrust equals weight and symmetric motors produce zero net torque.
 - A ten-second coupled run maintains the altitude setpoint within 3 cm.
 - Unpowered free fall, floor/wall collision, and capture using physical position.
@@ -105,6 +110,11 @@ rejects a second scale application; starting the 2D model resets scaling entirel
 Rust tests check the boundary formula on every wall, at corners, at the cutoff
 and exactly on a wall; scaled sigmas, cutoffs and noise; unchanged speed/angular
 caps; single-application scaling and reset isolation from the original model.
+Sixteen synthetic reference cases compare both swarm force fields directly with
+the current thesis Python implementation, covering DM/ADM, disabled sensors,
+near-wall states and signed prey-sigma modulation. Reference fixtures and
+formation tables can be regenerated with
+`python tests/generate-lab-reference.py /path/to/Thesis`. No experiments run.
 
 The PID fixture was generated from the existing CF2X DSLPIDControl implementation
 (SHA-256 `3a73314023cc48b2c089a894dd8da422ffb3e16c2d156d8defd01bc1fc7a51af`).
@@ -121,3 +131,30 @@ These checks validate components and coupling; they do not establish matching
 long-run trajectories or experimental outcome distributions across engines.
 
 See [third-party attribution](THIRD_PARTY.md).
+
+## Run the corresponding PyBullet configuration
+
+From the Thesis checkout, activate its existing environment and run:
+
+```bash
+conda activate swarm
+cd ~/repos/Thesis/swarm/3D_implementation/Prey_Predator
+bash run_bounded_test.sh --capture_distance 0.5 --gamma 1
+```
+
+This uses five predators/four prey, DM, R=3, scale=0.3, lambda=0.2,
+20 Hz swarm / 120 Hz PID / 240 Hz physics, and no target. `--gamma 1` enables
+the same wall field (effective gamma=0.3); it is zero in the script's defaults.
+Use `--pdm True` for the optional predator ADM setting.
+
+To save a headless run, supply a new output directory:
+
+```bash
+bash run_bounded_test.sh --capture_distance 0.5 --gamma 1 \
+  --gui False --plot False --save \
+  --output_folder "$HOME/pybullet-lab-results/run-$(date +%Y%m%d-%H%M%S)"
+```
+
+The existing script uses a 30,000-step horizon. `--save` requests its full
+trajectory output; the normal preview does not save it. These commands launch
+individual bounded runs, not the separate multi-case August experiment batch.

@@ -39,7 +39,8 @@ test('second simulator advances physical drones, pauses, exports and retains the
   const stream=await download.createReadStream();let text='';for await(const chunk of stream)text+=chunk;const snapshot=JSON.parse(text);
   expect(snapshot.agents).toHaveLength(9);expect(snapshot.agents.filter(a=>a.prey)).toHaveLength(4);
   expect(snapshot.effective.range).toBe(1.5);expect(snapshot.effective.capture).toBe(.15);expect(snapshot.effective.target).toBe(false);
-  for(const a of snapshot.agents){expect(a.position[2]).toBeGreaterThan(.5);expect(a.position[2]).toBeLessThan(.7);expect(a.rpm).toHaveLength(4);}
+  expect(snapshot.effective.repulsion).toBe('grad_rep');expect(snapshot.effective.captureMetric).toBe('xy');
+  for(const a of snapshot.agents){expect(a.position[2]).toBeGreaterThan(a.prey?.4:.5);expect(a.position[2]).toBeLessThan(a.prey?.6:.7);expect(a.rpm).toHaveLength(4);}
   await page.locator('#lab-run').click();await page.getByRole('link',{name:'2D swarm',exact:true}).click();
   await expect(page.locator('#run')).toBeEnabled();await expect(page.locator('#lab-status')).toContainText('Paused');
   await page.getByRole('link',{name:'3D laboratory',exact:true}).click();await expect(page.locator('#lab-run')).toHaveText('Resume');
