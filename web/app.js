@@ -1,6 +1,17 @@
 import { marked } from 'marked';
 import katex from 'katex';
-import renderMathInElement from 'katex/contrib/auto-render';
+import { arrangeSlide } from './slide-layout.js';
+
+// Parse equations before Markdown can treat their underscores as emphasis.
+marked.use({ extensions: [{
+  name: 'inlineMath', level: 'inline',
+  start: source => source.indexOf('$'),
+  tokenizer(source) {
+    const match = /^\$([^$\n]+)\$/.exec(source);
+    if (match) return { type: 'inlineMath', raw: match[0], text: match[1] };
+  },
+  renderer: token => katex.renderToString(token.text, { throwOnError: false }),
+}] });
 
 const $ = id => document.getElementById(id);
 let slides = [], index = 0, worker, workerReady = false, state = 'loading', latest, config, bounds;
@@ -23,29 +34,32 @@ function render(component) {
   if (component == null) return document.createTextNode('');
   if (Array.isArray(component)) { const f = document.createDocumentFragment(); component.forEach(c => f.append(render(c))); return f; }
   if (typeof component !== 'object') return document.createTextNode(String(component));
-  const { namespace, type, props = {} } = component;
-  if (namespace === 'dcc' && type === 'Markdown') {
+  const { type, attrs = {}, children } = component;
+  if (type === 'markdown') {
     const el = document.createElement('div');
-    el.innerHTML = marked.parse(dedent(props.children), { breaks: false });
+    const source = dedent(component.text).trim();
+    if (/^\$[^$]+\$$/.test(source)) {
+      el.className = 'equation-block';
+      katex.render(source.slice(1, -1), el, { displayMode: true, throwOnError: false });
+    } else el.innerHTML = marked.parse(source, { breaks: false });
     el.querySelectorAll('a').forEach(a => a.setAttribute('href', internalLink(a.getAttribute('href'))));
     return el;
   }
-  if (namespace === 'dash_katex') {
+  if (type === 'equation') {
     const el = document.createElement('div'); el.className = 'math-block';
-    katex.render(props.expression || '', el, { displayMode: true, throwOnError: false });
+    katex.render(component.text || '', el, { displayMode: true, throwOnError: false });
     return el;
   }
-  const tags = { Div: 'div', A: 'a', Img: 'img', Iframe: 'iframe', Br: 'br', Span: 'span', H1: 'h1', H2: 'h2', H3: 'h3', Button: 'button', Label: 'label' };
-  if (namespace !== 'html' || !tags[type]) throw new Error(`Unsupported slide element: ${namespace}.${type}`);
-  const el = document.createElement(tags[type]);
-  if (props.style) Object.assign(el.style, Object.fromEntries(Object.entries(props.style).filter(([k]) => !['fontSize', 'textAlign'].includes(k))));
+  const tags = ['div', 'a', 'img', 'iframe', 'br', 'span', 'h1', 'h2', 'h3', 'button', 'label'];
+  if (!tags.includes(type)) throw new Error(`Unsupported slide element: ${type}`);
+  const el = document.createElement(type);
   for (const key of ['src', 'href', 'width', 'height', 'download']) {
-    if (props[key] != null) el.setAttribute(key, internalLink(String(props[key])));
+    if (attrs[key] != null) el.setAttribute(key, internalLink(String(attrs[key])));
   }
-  if (type === 'Img') { el.alt = props.alt || 'Research illustration'; el.loading = 'lazy'; }
-  if (type === 'Iframe') { el.title = props.title || 'Interactive experiment results'; el.loading = 'lazy'; }
-  if (type === 'Button') el.type = 'button';
-  if (props.children != null) el.append(render(props.children));
+  if (type === 'img') { el.alt = attrs.alt || 'Research illustration'; el.loading = 'lazy'; }
+  if (type === 'iframe') { el.title = attrs.title || 'Interactive experiment results'; el.loading = 'lazy'; }
+  if (type === 'button') el.type = 'button';
+  if (children != null) el.append(render(children));
   return el;
 }
 
@@ -61,7 +75,7 @@ function showSlide() {
   $('slide-select').value = String(index);
   $('slide-counter').textContent = `${index + 1} / ${slides.length}`;
   $('previous').disabled = index === 0; $('next').disabled = index === slides.length - 1;
-  renderMathInElement($('slide-content'), { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }, { left: '\\[', right: '\\]', display: true }, { left: '\\(', right: '\\)', display: false }], throwOnError: false });
+  if (!playground) arrangeSlide($('slide-content'), index);
   if (playground) { ensureWorker(); requestAnimationFrame(draw); }
   else if (worker && state === 'running') worker.postMessage({ type: 'pause' });
 }
@@ -172,7 +186,7 @@ $('export').onclick = () => {
   if (!latest) return;
   const n = latest[2], m = latest[3];
   const row = i => Array.from(latest.slice(8 + i * 5, 13 + i * 5));
-  const output = { schema: 'thesis-presentation.snapshot.v1', model: 'Thesis_presentation/sim.py', config, dt: .05, step: latest[0], simulationTime: latest[1], captured: latest[4], predatorColumns: ['x', 'y', 'heading', 'sensing', 'id'], preyColumns: ['x', 'y', 'heading', 'id', 'status'], predators: Array.from({ length: n }, (_, i) => row(i)), prey: Array.from({ length: m }, (_, i) => row(n + i)) };
+  const output = { schema: 'thesis-presentation.snapshot.v1', model: 'published DM/ADM model', config, dt: .05, step: latest[0], simulationTime: latest[1], captured: latest[4], predatorColumns: ['x', 'y', 'heading', 'sensing', 'id'], preyColumns: ['x', 'y', 'heading', 'id', 'status'], predators: Array.from({ length: n }, (_, i) => row(i)), prey: Array.from({ length: m }, (_, i) => row(n + i)) };
   const url = URL.createObjectURL(new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' }));
   const a = document.createElement('a'); a.href = url; a.download = `predator-prey-step-${latest[0]}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 };

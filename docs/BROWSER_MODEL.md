@@ -1,8 +1,11 @@
 # Browser model and numerical verification
 
-The scientific reference is this repository's **original `sim.py`** and the
-parameters supplied by `app.py`. Neither Python file is changed. This port does
-not include subsequent Thesis/HPC cases, datasets or unpublished results.
+The scientific reference is the published Python simulator, preserved verbatim
+as `tests/reference/published_sim.py` for numerical tests only. Its original
+location was `sim.py`; controller parameters came from `app.py` at commit
+`29a0a54`. The Dash application, server entry points, dependencies and Docker
+configuration have been removed. This port does not include subsequent
+Thesis/HPC cases, datasets or unpublished results.
 
 ## What is preserved
 
@@ -64,8 +67,10 @@ on that visitor's device. The main thread draws a Canvas frame and updates UI.
 There is no Dash/Flask service, simulation API, VPS, account, Supabase dependency,
 analytics or results upload. Plotly and KaTeX are bundled locally as well.
 
-The existing 16 slide declarations are exported during the build without starting
-Dash. Existing images, animations, PDF and interactive result plots are reused.
+The 16 original slides are stored as static content in `web/slides.json`. The
+site build uses Node.js and Rust. Python and NumPy are used only by the numerical
+reference tests. Existing images, animations, PDF and interactive result plots
+are reused.
 The old slide-13 warning about slow server hosting is replaced by the browser
 playground. Hash navigation works under `/Thesis_presentation/` without rewrites.
 Generated site files and test screenshots are ignored by Git and deployed as a

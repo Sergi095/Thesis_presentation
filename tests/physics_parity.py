@@ -12,8 +12,8 @@ from unittest.mock import patch
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-from sim import PredatorPreySimulation
+sys.path.insert(0, str(ROOT / 'tests/reference'))
+from published_sim import PredatorPreySimulation
 
 
 def compare(n, m, adm, prey_adm, sensing, pr, qr, capture, seed, steps=100):

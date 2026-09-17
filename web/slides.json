@@ -1,0 +1,512 @@
+[
+  {
+    "title": {
+      "type": "a",
+      "attrs": {
+        "href": "https://github.com/Sergi095"
+      },
+      "children": "By Sergio A. Gutierrez Maury"
+    },
+    "content": [
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "div",
+            "children": [
+              {
+                "type": "markdown",
+                "text": "\n                ### Outline\n                - [Introduction](/1)\n                - [Related Work](/2)\n                - [Methods](/3)\n                - [Experimental Setup](/6)\n                - [Results](/7)\n                - [Discussion](/10)\n                - [Conclusions](/12)\n                "
+              }
+            ]
+          },
+          {
+            "type": "div",
+            "children": [
+              {
+                "type": "img",
+                "attrs": {
+                  "src": "assets/2Dfast.gif"
+                }
+              },
+              {
+                "type": "img",
+                "attrs": {
+                  "src": "assets/pybulletFast.gif"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "div",
+            "children": [
+              {
+                "type": "markdown",
+                "text": "\n                ### Project Code\n                "
+              },
+              {
+                "type": "a",
+                "attrs": {
+                  "href": "https://github.com/Sergi095/Vu_Thesis_Prey_Predator.git"
+                },
+                "children": [
+                  {
+                    "type": "img",
+                    "attrs": {
+                      "src": "assets/GitHub_logo.png"
+                    }
+                  },
+                  "Github Repository"
+                ]
+              },
+              {
+                "type": "a",
+                "attrs": {
+                  "href": "/assets/presentation.pdf",
+                  "download": "presentation.pdf"
+                },
+                "children": [
+                  {
+                    "type": "button",
+                    "children": "Download Presentation as PDF"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "div",
+            "children": [
+              {
+                "type": "markdown",
+                "text": "\n                ### Playground \n                At slide [13](/13) you can interact with the simulation.\n                "
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Introduction",
+    "content": [
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "markdown",
+            "text": "\n\n                - The dynamics between prey and predators have been extensively studied across fields like mathematics, robotics, and biology.\n                  These studies help us understand population dynamics, migrations, and species adaptation.\n                  In multi-agent environments, both predators and prey may evolve swarming behaviors for escape or chase strategies. \\[[2-5](/15)\\]\n\n                - Predators often hunt collectively to capture challenging prey, despite the cost of sharing.\n                  Examples include lions, hyenas, wolves, and killer whales.\n                  Their hunting strategies vary significantly, utilizing senses like sight, smell, and echolocation. \\[[6-9](/15)\\]\n\n                - Prey develop swarming behaviors to increase survival chances, such as confusing predators.\n                 Examples include pigeons and fish, which exhibit complex escape patterns through self-organization and group behaviors. \\[[10-13](/15)\\]\n\n                - Inspired by these natural behaviors, researchers have developed swarm robotic systems to mimic these interactions for complex tasks.\n                  This study explores mechanisms like Distance Modulation (DM) and Attractive Distance Modulation (ADM) in a dynamic environment. \\[[15](/15)\\]\n                "
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Related Work",
+    "content": [
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "markdown",
+            "text": "\n\n                - Reinforcement Learning Approaches: Studies integrating Reinforcement Learning (RL) with flocking control to model predator-prey interactions. In their methods authors use: Q-learning or Graph-centric Multi-Agent Reinforcement Learning (MARL). \\[[16-18](/15)\\]\n\n                - Mathematical Models and Theoretical Analysis: Development of minimal models and particle-based approaches to study predator-swarm dynamics, revealing various interaction patterns like escape, confusion, and capture. \\[[19-20](/15)\\]\n\n                - Applications and Practical Implementations: Use of prey-predator algorithms in real-world scenarios such as surveillance and herding with autonomous drones, demonstrating the practical utility of swarm robotics. \\[[21-22](/15)\\]\n\n                - Swarm Robotics and Flocking Behavior: Researchers developed a RAOI (Repulsion, Attraction, Orientation, Influence) behavior policies, used it on a prey-predator task, and tried to find optimal parameters based on these simple rules. \n                  On a another study, researchers tried to reduce the gap between reality and virtual simulations by introducing visual and olfatory cues in their experiments, studying multimodal senssing.\\[[23-25](/15)\\]\n                "
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Methods: Proximal Control Vectors",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n            Following the methodology of “Collective Gradient Following with Sensory Heterogeneous UAV Swarm” \\[[1](/15)\\] I implement two different proximal control vectors:\n            - Attractive Distance Modulation (ADM)\n            - Distance Modulation (DM or Normal P-vector)\n\n            The formula for the normal P-vector is given by:\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n\n\n            $p_i^m(d_i^m, \\sigma_i)=-\\epsilon \\cdot \\left[ 2 \\cdot \\frac{\\sigma_i^4}{(d_i^m)^5} - \\frac{\\sigma_i^2}{(d_i^m)^3} \\right]$\n            "
+      },
+      {
+        "type": "markdown",
+        "text": " The formula for ADM is given by: "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            $p_i^m(d_i^m, \\sigma_i)=-\\epsilon \\cdot \\left[\\frac{\\sigma_i}{(d_i^m)} - \\sqrt{\\frac{\\sigma_i}{(d_i^m)}} \\right]$\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "img",
+            "attrs": {
+              "src": "assets/p_vectors.png"
+            }
+          }
+        ]
+      },
+      {
+        "type": "markdown",
+        "text": "\n            The plot show the repulsive and attractive forces for both methods.\n\n            The equlibrium point is at $d_{des}^i= \\sqrt{2} \\cdot \\sigma_i$ for DM and $d_{des}^i= \\sigma_i$ for ADM.\n            "
+      }
+    ]
+  },
+  {
+    "title": "Methods: Predator Swarm",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n            The flocking control for predators is either Normal P-vector or ADM. The predators do not use alignment control, and the force formula is as follows:\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            $force=\\alpha \\cdot \\vec{p}$\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            Predators are able to chase preys with minimal information possible, which is the distance.\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "img",
+            "attrs": {
+              "src": "assets/predator_prey_distance_speed_up.gif"
+            }
+          }
+        ]
+      },
+      {
+        "type": "markdown",
+        "text": "\n            The way this mechanism is implemented is by taking all distances within a sensed range, averaging them, then the reciprocal is added to the desired distance as follows:\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            $\\sigma_i=\\frac{1}{distance} + \\sigma_c$\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            where sigma constant is a parameters that controls for upper and lower bounds of the desired distance, and the resulting $\\sigma_i$ is the desired distance modulation.\n\n            Furthermore, there are non-sensing agents in the predator swarms, which means they maintain a constant sigma.\n            "
+      }
+    ]
+  },
+  {
+    "title": "Methods: Prey Swarm",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n            The prey’s flocking is controlled solely by the Normal P vector. I am not implementing ADM on preys. Furthermore, the preys use a repulsion vector to run away from sensed predators.\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            $force=\\alpha \\cdot \\vec{p} + \\kappa \\cdot \\vec{rp}$\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            The repulsion vector is calculated as follows:\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            $\\vec{rp}_{prey_{i}}=\\vec{pos}_{prey_{i}} - \\vec{avgPos}_{predators}$\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            Where each individual prey's repulsion is computed by first computing the average position of predators and subtracting that point from the prey's position, such that it can run in the opposite direction.\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "img",
+            "attrs": {
+              "src": "assets/predator_prey_repulsion_fast2.gif"
+            }
+          },
+          {
+            "type": "img",
+            "attrs": {
+              "src": "assets/kappaPREDSdist.png"
+            }
+          }
+        ]
+      },
+      {
+        "type": "markdown",
+        "text": "\n            Kappa is the multiplier of the repulsion vector, which takes the following form:"
+      },
+      {
+        "type": "markdown",
+        "text": "\n            $\\kappa=\\frac{2}{1+distance}$\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            The objective of kappa is to make the prey faster the closer the predator, such that it does not become an easy chase.\n\n            The formula of $\\kappa$ is a modified version of the fear function used in **\"Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge\"** \\[[26](/15)\\].\n\n            The plot shows the strength of kappa as a function of distance, with the maximum value being 2 and approaching 0 as the distance increases.\n            "
+      }
+    ]
+  },
+  {
+    "title": "Experimental Setup",
+    "content": [
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "div",
+            "children": [
+              {
+                "type": "markdown",
+                "text": "\n                ### Table 1: Simulation Parameters\n                - 2D Simulation & Unbounded Environment: The study simulates 2D agents in an unbounded environment, allowing unrestricted movement and realistic behavior analysis.\n\n                - Different $\\sigma_c$ for Predators: Predators have different desired distance parameter constants based on their sensing capabilities.\n                  Sensing predators can dynamically change their distance based on $\\sigma_i$ distance modulation formula, while non-sensing predators have a fixed desired distance constant. A slightly larger $\\sigma_c$ to avoid clustering.\n\n                - Larger Dp for DM: In Distance Modulation (DM), the attraction force decreases with distance, requiring a higher sensor range (Dp) to maintain effective peer sensing and prevent swarm separation.\n\n                - Methodology Alignment: Other parameters align with the methodologies detailed in the referenced paper \\[[15](/15)\\].\n                "
+              }
+            ]
+          },
+          {
+            "type": "div",
+            "children": [
+              {
+                "type": "div",
+                "children": [
+                  {
+                    "type": "equation",
+                    "text": "\n                        \\begin{array}{l|c|l}\n                        \\hline\n                        \\text{Parameter} & \\text{Value} & \\text{Description} \\\\\n                        \\hline\n                        \\text{$\\alpha_{predator}$} & 1.0 & \\text{Alpha for predators} \\\\\n                        \\text{$\\alpha_{prey}$} & 1.0 & \\text{Alpha for prey} \\\\\n                        \\text{$D_{p_{DM}}$} & 4.0 & \\text{Sensor range for neighbours (predators) in DM} \\\\\n                        \\text{$D_{p_{ADM}}$} & 3.5 & \\text{Sensor range for neighbours (predators) in ADM} \\\\\n                        \\text{$D_{p_{prey}}$} & 3.5 & \\text{Sensor range for neighbours (prey)} \\\\\n                        \\text{$\\sigma_{c_{SensingPreds}}$} & 0.7 & \\text{Constant sigma for DM (sensing predators)} \\\\\n                        \\text{$\\sigma_{c_{NonSensingPreds}}$} & 0.75 & \\text{Constant sigma for DM (non-sensing predators)} \\\\\n                        \\text{$\\sigma_{c_{predSensingADM}}$} & 1.5 & \\text{Constant sigma for ADM (sensing predators)} \\\\\n                        \\text{$\\sigma_{c_{predNonSensingADM}}$} & 2.0 & \\text{Constant sigma for ADM (non-sensing predators)} \\\\\n                        \\text{$\\sigma_{c_{prey}}$} & 0.7 & \\text{Constant sigma for prey} \\\\\n                        \\text{error range} & 0.05 & \\text{Error range} \\\\\n                        \\text{sensor range} & 3 & \\text{Sensor range (predator)} \\\\\n                        \\text{sensing range} & 3 & \\text{Sensing range (prey)} \\\\\n                        \\text{$N_{predators}$} & 100 & \\text{Number of predators} \\\\\n                        \\text{$N_{preys}$} & 100 & \\text{Number of prey} \\\\\n                        \\text{$dt$} & 0.05 & \\text{Time step} \\\\\n                        \\text{$\\epsilon$} & 12 & \\text{Constant multiplier of proximal control vectors} \\\\\n                        \\text{$\\omega_{max}$} & \\frac{\\pi}{3} & \\text{Maximum angular speed} \\\\\n                        \\text{$U_{max}$} & 0.15 & \\text{Maximum linear speed} \\\\\n                        \\text{$U_{c}$} & 0.05 & \\text{Constant linear velocity} \\\\\n                        \\hline\n                        \\end{array}\n                        "
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Results: Sensing Ranges",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n            These plots illustrate how different sensing ranges affect the ability of predators to chase preys.\n\n            - These ratios indicate the relative sensing capabilities of predators compared to prey.\n              A ratio of 2:1 means that predators can sense prey at twice the distance that prey can sense predators.\n\n\n            "
+      },
+      {
+        "type": "markdown",
+        "text": "\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "iframe",
+            "attrs": {
+              "src": "assets/sensingRanges_ADM.html",
+              "width": "100%",
+              "height": "700px"
+            }
+          }
+        ]
+      },
+      {
+        "type": "markdown",
+        "text": "\n\n            - In both simulations, when all predators are sensing, the plots show that higher predator sensing\n                ranges (2:1 and 3:2 ratios) result in a lower average distance between the predator and prey swarms.\n\n            - However, when the sensing ratio is lower (e.g., 1:2), the distance increases, suggesting that predators\n              struggles more to keep up with prey when their sensing capability is inferior.\n\n            - The plots have similar trends in all cases, except for the case of only one sensing predator, with DM method.\n              In this case, the predator swarm lost the prey 100% of the time.\n\n            - Given that predators, could keep up with prey on a 1:1 ratio, I decided to us this ratio for the rest of the experiments, to make everything fair.\n\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "iframe",
+            "attrs": {
+              "src": "assets/sensingRanges_DM.html",
+              "width": "100%",
+              "height": "800px"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Results: Velocities and Distances (Distance Modulation)",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "iframe",
+            "attrs": {
+              "src": "assets/boxplot_DM.html",
+              "width": "100%",
+              "height": "800px"
+            }
+          }
+        ]
+      },
+      {
+        "type": "markdown",
+        "text": "\n            - Similar to ADM, the higher the sensory predators, the lower the average distance between the predator and prey swarms.\n\n            - Also, similar to ADM, the velocities of predators are higher than those of preys. and maintainng a fixed velocity.\n\n            - Yet, when there are fewer sensing predators, the average distance increases, indicating that the predator swarm struggles to keep up with the prey swarm.\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "iframe",
+            "attrs": {
+              "src": "assets/speeds_DM.html",
+              "width": "100%",
+              "height": "800px"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Results: Velocities and Distances (Attractive Distance Modulation)",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "iframe",
+            "attrs": {
+              "src": "assets/boxplot_ADM.html",
+              "width": "100%",
+              "height": "800px"
+            }
+          }
+        ]
+      },
+      {
+        "type": "markdown",
+        "text": "\n            - These figures show the distribution of velocities and distances for the ADM method.\n\n            - In ADM, consistently show lower average distances compared to DM, indicating that predators could either catch or maintain a fixed distance from the prey swarm.\n\n            - The plots show that the hihger the sensory predators, the more likely they are to catch the prey.\n\n            - The velocities of predators are higher than those of preys, as expected. When the predator swarm is fully sensing, the average velocity decreases at step 5000\n              indicating that the predator swarm has caught up with the prey swarm, which is further confirmed by the decrease in average distance.\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "iframe",
+            "attrs": {
+              "src": "assets/speeds_ADM.html",
+              "width": "100%",
+              "height": "800px"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Discussion",
+    "content": [
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "markdown",
+            "text": "\n                - The results show that ADM is more effective than DM in keeping closer distances to preys.\n\n                - Furthermore, the results also show that predators consistently maintain higher velocities than preys.\n                "
+          }
+        ]
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "img",
+            "attrs": {
+              "src": "assets/PADM_fast.gif"
+            }
+          },
+          {
+            "type": "img",
+            "attrs": {
+              "src": "assets/PDM_fast.gif"
+            }
+          }
+        ]
+      },
+      {
+        "type": "markdown",
+        "text": "\n            - This is because of the design choice of distance modulation, where we are constantly introducing incentives for predators\n              to separate from each other, and run closer towards a prey.\n\n            - Prey on the other hand, do not have this mechanism.\n\n            - Furthermore, these results suggest that this incentive mechanism makes the predatir swarm faster due to the attraction force of the proximal control vector.\n\n            - the two videos show a simulation and the change in velocities of the predators in real time.\n              The first video shows the ADM method, and the second video shows the DM method.\n              It is clear that in both cases, the predators are consistently faster than the preys. and in the case where both prey and predators have the same proximity control vector,\n              although they have similar velocities, the predators are faster.\n            "
+      }
+    ]
+  },
+  {
+    "title": "Discussion: Velocities and Distances (Distance Modulation)",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n\n            - These plots show the average velocities of predators with both methods (ADM and DM) with the presence of preys and without preys, with all sensing predators.\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "iframe",
+            "attrs": {
+              "src": "assets/comparison_with_preys.html",
+              "width": "100%",
+              "height": "700px"
+            }
+          }
+        ]
+      },
+      {
+        "type": "markdown",
+        "text": "\n            - In the plot above, the ADM shows a higher velocity than DM and a sudden decrease in velocity at step 5000, indicating that the predator swarm has caught up with the prey swarm.\n\n            - The plot below shows the velocities with no preys, in this case both method show an identical velocity.\n            "
+      },
+      {
+        "type": "div",
+        "children": [
+          {
+            "type": "iframe",
+            "attrs": {
+              "src": "assets/comparison_no_preys.html",
+              "width": "100%",
+              "height": "800px"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Conclusion",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n\n        - ADM vs. DM: Predators using Attractive Distance Modulation (ADM) maintain higher velocities and better prey capture rates compared to Distance Modulation (DM).\n\n        - Building upon previous research: Previous research has used these methods in dynamic gradient maps. Here Preys can be seen as a dynamic gradient in an infinite space.\n          proving that this method can be used in more complex scenarios.\n\n        - Future Work: Future research should focus on using ADM for both predator and prey swarms, varying swarm sizes, and testing these algorithms in real-life experiments.\n            "
+      }
+    ]
+  },
+  {
+    "title": "Simulation Playground",
+    "content": []
+  },
+  {
+    "title": "Acknowledgements",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n            I would like to express my gratitude to my supervisors, Dr. Eliseo Ferrante and PhD candidate Tugay Alperen Karagüzel, for their invaluable guidance, patience, and support throughout this research project. Their expertise and mentorship have been instrumental in this journey.\n                         \n            I am also thankful to my wife and friends for their continuous encouragement, understanding, and help during this challenging period.\n                         \n            Lastly, I would like to extend my appreciation to Vrije Universiteit Amsterdam for providing the resources and environment essential for the successful completion of this project.\n            "
+      }
+    ]
+  },
+  {
+    "title": "References",
+    "content": [
+      {
+        "type": "markdown",
+        "text": "\n            - \\[1\\] Karaguzel, T.A., Cambier, N., Eiben, A.E., Ferrante, E.: Collective Gradient Following with Sensory Heterogeneous UAV Swarm, pp. 187–201 (2024). https://doi.org/10.1007/978-3-031-51497-5_14\n                         \n            - \\[2\\] Wen, T., Gao, Q., Kalm ́ar-Nagy, T., Deng, Y., Cheong, K.H.: A review of predator–prey systems\n            with dormancy of predators. Nonlinear dynamics 107(4), 3271–3289 (2022) https://doi.org/10.1007/\n            s11071-021-07083-x\n                         \n            - \\[3\\] Batabyal, A.: Predator–prey systems as models for integrative research in biology: the value of a non-\n            consumptive effects framework. Journal of experimental biology 226(19) (2023) https://doi.org/10.1242/jeb.\n            245851\n                         \n            - \\[4\\] Diz-Pita, , Otero-Espinar, M.V.: Predator–Prey Models: A Review of Some Recent Advances. Mathematics\n            9(15), 1783 (2021) https://doi.org/10.3390/math9151783\n                         \n            - \\[5\\] Witkowski, O., Ikegami, T.: Emergence of Swarming Behavior: Foraging Agents Evolve Collective Motion\n            Based on Signaling. PloS one 11(4), 0152756 (2016) https://doi.org/10.1371/journal.pone.0152756\n                         \n            - \\[6\\] Escobedo, R., Muro, C., Spector, L., Coppinger, R.P.: Group size, individual role differentiation and effec-\n            tiveness of cooperation in a homogeneous group of hunters. Journal of the Royal Society interface 11(95),\n            20140204 (2014) https://doi.org/10.1098/rsif.2014.0204\n                         \n            - \\[7\\] Social Strategies of Carnivorous Mammalian Predators, (2023). https://doi.org/10.1007/978-3-031-29803-5\n            . https://doi.org/10.1007/978-3-031-29803-5\n                         \n            - \\[8\\] Manubay, J.A., Powell, S.: Detection of prey odours underpins dietary specialization in a Neotropical top-\n            predator: How army ants find their ant prey. Journal of animal ecology 89(5), 1165–1174 (2020) https:\n            //doi.org/10.1111/1365-2656.13188\n                         \n            - \\[9\\] Schnitzler, H.-U., Kalko, E.K.V.: Echolocation by Insect-Eating Bats. BioScience/Bioscience 51(7), 557\n            (2001) https://doi.org/10.1641/0006-3568(2001)051\n                         \n            - \\[10\\] Olson, R.S., Hintze, A., Dyer, F.C., Knoester, D.B., Adami, C.: Predator confusion is sufficient to evolve\n            swarming (2012). https://arxiv.org/abs/1209.3330v1\n                         \n            \n            - \\[11\\] Chakraborty, D., Bhunia, S., De, R.: Survival chances of a prey swarm: how the cooperative interaction\n            range affects the outcome. arXiv (Cornell University) (2019) https://doi.org/10.48550/arxiv.1910.10541\n                         \n            - \\[12\\] Papadopoulou, M., Hildenbrandt, H., Sankey, D.W.E., Portugal, S.J., Hemelrijk, C.K.: Self-organization\n            of collective escape in pigeon flocks. PLOS computational biology/PLoS computational biology 18(1),\n            1009772 (2022) https://doi.org/10.1371/journal.pcbi.1009772\n                         \n            - \\[13\\] Marras, S., Domenici, P.: Schooling fish under attack are not all equal: some lead, others follow. PloS one\n            8(6), 65784 (2013) https://doi.org/10.1371/journal.pone.0065784\n                         \n            - \\[14\\] Duan, H., Huo, M., Fan, Y.: From animal collective behaviors to swarm robotic cooperation. National\n            Science Review/National science review 10(5) (2023) https://doi.org/10.1093/nsr/nwad040\n                         \n            - \\[15\\] Karag ̈uzel, T.A., Turgut, A.E., Eiben, A.E., Ferrante, E.: Collective gradient perception with a flying robot\n            swarm. Swarm intelligence 17(1-2), 117–146 (2022) https://doi.org/10.1007/s11721-022-00220-1\n                         \n            - \\[16\\] Wang, G., Xiao, J., Xue, R., Yuan, Y.: A Multi-group Multi-agent System Based on Reinforcement Learning\n            and Flocking. International Journal of Control, Automation, and Systems/International journal of control,\n            automation, and systems 20(7), 2364–2378 (2022) https://doi.org/10.1007/s12555-021-0170-5\n                         \n            - \\[17\\] Lee, K., Ahn, K., Park, J.: End-to-End control of USV swarm using graph centric Multi-Agent Reinforce-\n            ment Learning. 2021 21st International Conference on Control, Automation and Systems (ICCAS) (2021)\n            https://doi.org/10.23919/iccas52745.2021.9649839\n                         \n            - \\[18\\] Hamed, O., Hamlich, M., Ennaji, M.: Hunting strategy for multi-robot based on wolf swarm algorithm and\n            artificial potential field. Indonesian journal of electrical engineering and computer science 25(1), 159 (2022)\n            https://doi.org/10.11591/ijeecs.v25.i1.pp159-171\n                         \n            - \\[19\\] Chen, Y., Kolokolnikov, T.: A minimal model of predator–swarm interactions. Journal of the Royal Society\n            interface 11(94), 20131208 (2014) https://doi.org/10.1098/rsif.2013.1208\n                         \n            - \\[20\\] Zhdankin, V., Sprott, J.C.: Simple predator-prey swarming model. Physical review. E, Statistical, nonlinear\n            and soft matter physics 82(5) (2010) https://doi.org/10.1103/physreve.82.056209\n                         \n            - \\[21\\] Li, X., Huang, H., Savkin, A., Zhang, J.: Robotic Herding of Farm Animals Using a Network of Barking\n            Aerial Drones. Drones 6(2), 29 (2022) https://doi.org/10.3390/drones6020029\n                         \n            - \\[22\\] Xiang, Y., Lei, X., Duan, Z., Dong, F., Gao, Y.: Self-Organized Patchy Target Searching and Collecting\n            with Heterogeneous Swarm Robots Based on Density Interactions. Electronics 12(12), 2588 (2023) https:\n            //doi.org/10.3390/electronics12122588\n                         \n            - \\[23\\] Ordaz-Rivas, E., Torres-Trevi ̃no, L.: Modeling and Simulation of Swarm of Foraging Robots for\n            Collecting Resources Using RAOI Behavior Policies, pp. 266–278 (2022). https://doi.org/10.1007/\n            978-3-031-19496-2\\{ . https://doi.org/10.1007/978-3-031-19496-220\n                         \n            - \\[24\\] Ordaz-Rivas, E., Rodriguez-Li ̃nan, A., Torres-Trevi ̃no, L.: Flock of Robots with Self-Cooperation\n            for Prey-Predator Task. Journal of intelligent robotic systems 101(2) (2021) https://doi.org/10.1007/\n            s10846-020-01283-0\n                         \n            - \\[25\\] Sun, X., Hu, C., Liu, T., Yue, S., Peng, J., Fu, Q.: Translating Virtual Prey-Predator Interaction to Real-World\n            Robotic Environments: Enabling Multimodal Sensing and Evolutionary Dynamics. Biomimetics 8(8), 580\n            (2023) https://doi.org/10.3390/biomimetics8080580\n                         \n            - \\[26\\] Balcı, E.: Predation fear and its carry-over effect in a fractional order prey–predator model with prey refuge.\n            Chaos, solitons fractals/Chaos, solitons and fractals 175, 114016 (2023) https://doi.org/10.1016/j.chaos.\n            2023.114016\n                         \n            - \\[27\\] Karag ̈uzel, T.A., Retamal, V., Cambier, N., Ferrante, E.: From Shadows to Light: A Swarm Robotics\n            Approach With Onboard Control for Seeking Dynamic Sources in Constrained Environments. IEEE robotics\n            automation letters 9(1), 127–134 (2024) https://doi.org/10.1109/lra.2023.3331897\n                                    \n            "
+      }
+    ]
+  }
+]
