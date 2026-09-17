@@ -10,9 +10,11 @@
     "test:physics": "python3 tests/physics_parity.py"
   },
   "dependencies": {
+    "ammojs3": "0.0.11",
     "katex": "0.18.7",
     "marked": "12.0.2",
-    "plotly.js-dist-min": "2.32.0"
+    "plotly.js-dist-min": "2.32.0",
+    "three": "0.186.0"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

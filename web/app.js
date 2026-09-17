@@ -15,6 +15,7 @@ marked.use({ extensions: [{
 
 const $ = id => document.getElementById(id);
 let slides = [], index = 0, worker, workerReady = false, state = 'loading', latest, config, bounds;
+let labUI, labLoading;
 const form = $('simulation-controls');
 const canvas = $('arena');
 const ctx = canvas.getContext('2d');
@@ -64,18 +65,27 @@ function render(component) {
 }
 
 function showSlide() {
+  const laboratory = location.hash === '#/lab';
   const match = /^#\/(\d+)$/.exec(location.hash);
-  index = Math.max(0, Math.min(slides.length - 1, match ? Number(match[1]) : 0));
-  const playground = index === 13;
-  document.body.classList.toggle('playground-mode', playground);
+  index = laboratory ? 13 : Math.max(0, Math.min(slides.length - 1, match ? Number(match[1]) : 0));
+  const playground = index === 13 && !laboratory;
+  document.body.classList.toggle('playground-mode', playground || laboratory);
+  $('lab-playground').hidden = !laboratory;
+  $('simulator-tabs').hidden = index !== 13;
+  $('simulator-tabs').querySelectorAll('a').forEach(a => a.setAttribute('aria-current', a.hash === (laboratory ? '#/lab' : '#/13') ? 'page' : 'false'));
+  if (laboratory) {
+    labLoading ||= import('./lab.js').then(module => { labUI=module.createLaboratory($('lab-playground')); if (location.hash === '#/lab') labUI.show(); });
+    labLoading.catch(error => { $('lab-playground').textContent=`Unable to load the laboratory: ${error.message}`; });
+    labUI?.show();
+  } else labUI?.pause();
   $('playground').hidden = !playground;
   $('slide-title').replaceChildren(render(slides[index].title));
   // Slide 13 contains the interactive playground.
-  $('slide-content').replaceChildren(...(playground ? [] : [render(slides[index].content)]));
+  $('slide-content').replaceChildren(...(index === 13 ? [] : [render(slides[index].content)]));
   $('slide-select').value = String(index);
   $('slide-counter').textContent = `${index + 1} / ${slides.length}`;
   $('previous').disabled = index === 0; $('next').disabled = index === slides.length - 1;
-  if (!playground) arrangeSlide($('slide-content'), index);
+  if (index !== 13) arrangeSlide($('slide-content'), index);
   if (playground) { ensureWorker(); requestAnimationFrame(draw); }
   else if (worker && state === 'running') worker.postMessage({ type: 'pause' });
 }

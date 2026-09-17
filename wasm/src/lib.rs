@@ -441,6 +441,86 @@ pub extern "C" fn simulation_snapshot_len() -> usize {
     FRAME.with(|f| f.borrow().len())
 }
 
+// The lab adapter evaluates the SAME controller at measured physical poses.
+// It returns setpoints; Bullet, rather than advance_agents, moves the bodies.
+#[no_mangle]
+pub extern "C" fn lab_set_pose(index: u32, x: f64, y: f64, yaw: f64) -> i32 {
+    if ![x, y, yaw].iter().all(|v| v.is_finite()) {
+        return -1;
+    }
+    ENGINE.with(|engine| {
+        let mut borrow = engine.borrow_mut();
+        let Some(sim) = borrow.as_mut() else {
+            return -1;
+        };
+        let n = sim.predators.len();
+        let agent = if (index as usize) < n {
+            sim.predators.get_mut(index as usize)
+        } else {
+            sim.prey.get_mut(index as usize - n)
+        };
+        let Some(agent) = agent else {
+            return -1;
+        };
+        agent[0] = x;
+        agent[1] = y;
+        agent[2] = yaw;
+        0
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn lab_mark_captured(index: u32) -> i32 {
+    ENGINE.with(|engine| {
+        let mut borrow = engine.borrow_mut();
+        let Some(sim) = borrow.as_mut() else {
+            return -1;
+        };
+        let Some(prey) = sim.prey.get_mut(index as usize) else {
+            return -1;
+        };
+        prey[4] = -1.;
+        0
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn lab_commands() -> i32 {
+    ENGINE.with(|engine| {
+        let mut borrow = engine.borrow_mut();
+        let Some(sim) = borrow.as_mut() else {
+            return -1;
+        };
+        let predators = sim.predators.clone();
+        let prey = sim.prey.clone();
+        let result = sim.step();
+        if result.is_ok() {
+            // FRAME stores desired x,y,yaw for each physical drone. Ignore the
+            // speculative capture flags: the lab tests actual 3D separation.
+            FRAME.with(|frame| {
+                *frame.borrow_mut() = sim
+                    .predators
+                    .iter()
+                    .chain(sim.prey.iter())
+                    .flat_map(|a| [a[0], a[1], a[2]])
+                    .collect()
+            });
+        }
+        sim.predators = predators;
+        sim.prey = prey;
+        if result.is_ok() {
+            0
+        } else {
+            -2
+        }
+    })
+}
+
+#[no_mangle]
+pub extern "C" fn lab_commands_ptr() -> *const f64 {
+    FRAME.with(|frame| frame.borrow().as_ptr())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

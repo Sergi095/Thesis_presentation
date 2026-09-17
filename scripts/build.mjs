@@ -14,6 +14,12 @@ await cp('assets', 'dist/assets', { recursive: true });
 await cp('web/index.html', 'dist/index.html');
 await cp('web/style.css', 'dist/style.css');
 await cp('web/slides.css', 'dist/slides.css');
+await cp('web/lab.css', 'dist/lab.css');
+await cp('node_modules/ammojs3/builds/ammo.wasm.js', 'dist/vendor/ammo.wasm.js');
+await cp('node_modules/ammojs3/builds/ammo.wasm.wasm', 'dist/vendor/ammo.wasm.wasm');
+await cp('node_modules/ammojs3/LICENSE', 'dist/vendor/ammo.LICENSE');
+await cp('node_modules/three/LICENSE', 'dist/vendor/three.LICENSE');
+await cp('docs/licenses/gym-pybullet-drones.txt', 'dist/vendor/flight-control.LICENSE');
 await cp('wasm/target/wasm32-unknown-unknown/release/predator_prey_core.wasm', 'dist/core.wasm');
 await cp('node_modules/katex/dist/katex.min.css', 'dist/vendor/katex.min.css');
 await cp('node_modules/katex/dist/fonts', 'dist/vendor/fonts', { recursive: true });
@@ -25,7 +31,8 @@ for (const name of await readdir('dist/assets')) {
   const html = await readFile(file, 'utf8');
   await writeFile(file, html.replaceAll('https://cdn.plot.ly/plotly-2.32.0.min.js', '../vendor/plotly.min.js'));
 }
-await build({ entryPoints: ['web/app.js', 'web/simulation-worker.js'], bundle: true, format: 'esm', target: 'es2022', outdir: 'dist', minify: true });
+await build({ entryPoints: ['web/app.js', 'web/lab.js', 'web/simulation-worker.js'], bundle: true, splitting: true, format: 'esm', target: 'es2022', outdir: 'dist', minify: true });
+await build({ entryPoints: ['web/lab-worker.js'], bundle: true, format: 'iife', target: 'es2022', outdir: 'dist', minify: true });
 await writeFile('dist/.nojekyll', '');
 let revision = 'local';
 try { revision = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); } catch {}

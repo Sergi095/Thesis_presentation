@@ -44,6 +44,7 @@ jobs:
         run: |
           npm run build
           node tests/wasm_parity.mjs
+          node tests/lab-physics.mjs
       - name: Test presentation and simulator in the browser
         run: npm test
       - name: Retain test diagnostics on failure

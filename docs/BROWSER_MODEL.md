@@ -1,5 +1,8 @@
 # Browser model and numerical verification
 
+This document describes the original 2D simulator. The additional physics
+simulator is documented separately in [Laboratory simulator](LAB_MODEL.md).
+
 The scientific reference is the published Python simulator, preserved verbatim
 as `tests/reference/published_sim.py` for numerical tests only. Its original
 location was `sim.py`; controller parameters came from `app.py` at commit
