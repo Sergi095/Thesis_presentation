@@ -1,2 +1,7 @@
 app.log
 __pycache__/
+node_modules/
+dist/
+wasm/target/
+test-results/
+playwright-report/

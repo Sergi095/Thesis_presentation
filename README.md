@@ -1,8 +1,57 @@
 # MSc Thesis Presentation: Sensory Heterogeneous Predator Swarm vs Fully Sensing Prey Swarm
 
-This presentation is made with Dash and it is deployed on a free hosting service. The presentation can be found at [Link](https://sergi095.pythonanywhere.com/0).
+The [GitHub Pages presentation](https://sergi095.github.io/Thesis_presentation/)
+includes the original slides and a refreshed interactive playground. The
+simulation runs **on each visitor's computer**, using Rust/WebAssembly in a Web
+Worker. No VPS, Python installation or server-side computation is needed by visitors.
 
-There is a small playground where you can run a small 2D simulation of preys and predators, but since it is hosted on a free web service, the simulation will run slow 😞. Therefore, the best is to run the app locally and see how it works.
+- [Open the presentation](https://sergi095.github.io/Thesis_presentation/#/0)
+- [Open the simulation](https://sergi095.github.io/Thesis_presentation/#/13)
+
+This preserves the published DM/ADM model in this repository's `sim.py`. No
+subsequent thesis experiments or unpublished data are included. The original
+Dash application remains available below. See [model provenance and tests](docs/BROWSER_MODEL.md).
+
+## Build and run the browser version locally
+
+Build prerequisites: Node.js 22.12 or newer, Python 3, and Rust (CI uses 1.94.1).
+Python is only used to export the old slide declaration at build time; there is
+no Python server in the browser version.
+
+```bash
+npm ci
+rustup target add wasm32-unknown-unknown
+npm run build
+npm run serve
+```
+
+Open http://127.0.0.1:4173/#/13. Serve `dist/` over HTTP; do not open the HTML as a
+`file://` URL. All runtime assets, including Plotly, are built into `dist/`.
+
+## Tests and automatic deployment
+
+```bash
+python3 -m pip install -r tests/requirements.txt
+cargo test --locked --manifest-path wasm/Cargo.toml
+python3 tests/physics_parity.py
+npm run build
+node tests/wasm_parity.mjs
+npx playwright install chromium
+npm test
+```
+
+The [Pages workflow](.github/workflows/pages.yml) runs Rust tests, compares against
+the published Python model, builds WebAssembly, checks the compiled module, and
+tests the browser presentation under a GitHub Pages subpath. Only passing builds
+from `master` are deployed; pull requests run checks without publishing. A manual
+workflow run is also available. Repository **Settings → Pages → Source** must be
+**GitHub Actions**. Generated files, build output and test screenshots are not
+committed to the repository.
+
+## Original Dash version
+
+The original Python application and its instructions remain available. Its
+historical hosted address is https://sergi095.pythonanywhere.com/0.
 
 
 ### Anaconda
@@ -47,4 +96,3 @@ This will create a running app on localhost: http://127.0.0.1:8050/13
 Then you can play with the simulation 😃
 
 ![presentation at localhost](assets/presentation-playground.gif)
-

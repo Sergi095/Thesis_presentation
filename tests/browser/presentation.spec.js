@@ -1,0 +1,88 @@
+import { test, expect } from '@playwright/test';
+
+test('all original slides, relative links, equations and assets work under a Pages subpath', async ({ page }) => {
+  const errors = [], failures = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('response', response => { if (response.status() >= 400) failures.push(response.url()); });
+  await page.goto('./#/0');
+  await expect(page.locator('#slide-select option')).toHaveCount(16);
+  await page.getByRole('link', { name: 'Introduction', exact: true }).click();
+  await expect(page).toHaveURL(/#\/1$/);
+  await expect(page.locator('#slide-title')).toHaveText('Introduction');
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#slide-title')).toHaveText('Related Work');
+  await page.locator('#slide-select').selectOption('3');
+  await expect(page.locator('.katex').first()).toBeVisible();
+  await page.locator('#slide-select').selectOption('6');
+  await expect(page.locator('#slide-content')).not.toContainText('Unable to load');
+  await page.reload();
+  await expect(page.locator('#slide-select')).toHaveValue('6');
+  await page.locator('#slide-select').selectOption('7');
+  const chart = page.frameLocator('iframe').first();
+  await expect(chart.locator('.plotly')).toBeVisible();
+  expect(errors).toEqual([]); expect(failures).toEqual([]);
+});
+
+test('WASM runs locally, pauses, resumes, exports, resets and obeys the step limit', async ({ page }) => {
+  const errors = [], external = [], mutations = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('request', r => { if (!r.url().startsWith('http://127.0.0.1:4173')) external.push(r.url()); if (r.method() !== 'GET') mutations.push(r.method()); });
+  await page.goto('./#/13');
+  await expect(page.locator('#run')).toHaveText('Run');
+  await expect(page.locator('#run')).toBeEnabled();
+  await page.locator('input[name=predators]').fill('12');
+  await page.locator('input[name=prey]').fill('7');
+  await page.locator('input[name=sensing]').fill('50');
+  await page.locator('#run').click();
+  await expect(page.locator('#run-status')).toHaveText('Running on your device.');
+  await expect(page.locator('#step-count')).not.toHaveText('Step 0 / 5000');
+  await page.locator('#pause').click();
+  await expect(page.locator('#run')).toHaveText('Resume');
+  const paused = await page.locator('#step-count').textContent();
+  await page.waitForTimeout(300);
+  await expect(page.locator('#step-count')).toHaveText(paused);
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('#export').click();
+  const download = await downloadPromise;
+  const stream = await download.createReadStream();
+  let text = ''; for await (const chunk of stream) text += chunk;
+  const snapshot = JSON.parse(text);
+  expect(snapshot.predators).toHaveLength(12); expect(snapshot.prey).toHaveLength(7);
+  expect(snapshot.predators.filter(p => p[3] === 0)).toHaveLength(6);
+  expect(snapshot.step).toBeGreaterThan(0);
+  await page.locator('#run').click();
+  await expect(page.locator('#step-count')).not.toHaveText(paused);
+  await page.locator('#reset').click();
+  await expect(page.locator('#step-count')).toHaveText('Step 0 / 5000');
+  await page.locator('input[name=steps]').fill('10');
+  await page.locator('#run').click();
+  await expect(page.locator('#run-status')).toHaveText('Finished: step limit reached.');
+  await expect(page.locator('#step-count')).toHaveText('Step 10 / 10');
+  expect(errors).toEqual([]); expect(external).toEqual([]); expect(mutations).toEqual([]);
+});
+
+test('leaving the playground pauses it and independent tabs do not share simulation state', async ({ browser }) => {
+  const context = await browser.newContext(); const a = await context.newPage(), b = await context.newPage();
+  const url = 'http://127.0.0.1:4173/Thesis_presentation/#/13';
+  await a.goto(url); await b.goto(url);
+  await expect(a.locator('#run')).toHaveText('Run'); await expect(b.locator('#run')).toHaveText('Run');
+  await a.locator('input[name=predators]').fill('8'); await a.locator('#run').click();
+  await expect(a.locator('#step-count')).not.toHaveText('Step 0 / 5000');
+  await expect(b.locator('#step-count')).toHaveText('Step 0 / 5000');
+  await a.locator('#slide-select').selectOption('12');
+  await expect(a.locator('#run-status')).toContainText('Paused');
+  await context.close();
+});
+
+test('mobile layout stays within the viewport and invalid settings do not start', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./#/13'); await expect(page.locator('#run')).toHaveText('Run');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  await page.locator('input[name=predators]').fill('0'); await page.locator('#run').click();
+  await expect(page.locator('#step-count')).toHaveText('Step 0 / 5000');
+  await page.locator('input[name=predators]').fill('1'); await page.locator('input[name=prey]').fill('1');
+  await page.locator('input[name=steps]').fill('10'); await page.locator('input[name=capture]').fill('5');
+  await page.locator('#run').click();
+  await expect(page.locator('#run-status')).toHaveText('Finished: all prey captured.');
+  await expect(page.locator('#prey-order')).toHaveText('—');
+});
